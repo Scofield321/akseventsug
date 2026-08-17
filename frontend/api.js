@@ -1,25 +1,19 @@
-const API_URL = "http://localhost:5001/api";
+// ============================================================
+// API CONFIGURATION
+// ============================================================
 
-const loginAdmin = async (username, password) => {
-  const response = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username,
-      password,
-    }),
-  });
+const isLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
-  const data = await response.json();
+const API_URL = isLocal
+  ? "http://localhost:5001/api"
+  : "https://akseventsug-backend.onrender.com/api";
 
-  if (!response.ok) {
-    throw new Error(data.message || "Login failed");
-  }
 
-  return data;
-};
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
 
 const getToken = () => {
   return localStorage.getItem("soundEventsToken");
@@ -34,64 +28,129 @@ const getAuthHeaders = () => {
   };
 };
 
-const getEvents = async () => {
-  const response = await fetch(`${API_URL}/events`);
+const handleResponse = async (response) => {
+  let data;
 
-  const data = await response.json();
+  try {
+    data = await response.json();
+  } catch (error) {
+    throw new Error("Server returned an invalid response.");
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to fetch events");
+    throw new Error(
+      data.message ||
+      data.error ||
+      `Request failed with status ${response.status}`
+    );
   }
 
   return data;
 };
+
+
+// ============================================================
+// AUTHENTICATION
+// ============================================================
+
+const loginAdmin = async (username, password) => {
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Admin login failed:", error);
+    throw error;
+  }
+};
+
+
+// ============================================================
+// EVENTS
+// ============================================================
+
+const getEvents = async () => {
+  try {
+    const response = await fetch(`${API_URL}/events`);
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Failed to load events:", error);
+    throw error;
+  }
+};
+
 
 const createEvent = async (eventData) => {
-  const response = await fetch(`${API_URL}/events`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(eventData),
-  });
+  try {
+    const response = await fetch(`${API_URL}/events`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(eventData),
+    });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to create event");
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Failed to create event:", error);
+    throw error;
   }
-
-  return data;
 };
+
 
 const updateEvent = async (id, eventData) => {
-  const response = await fetch(`${API_URL}/events/${id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(eventData),
-  });
+  try {
+    const response = await fetch(`${API_URL}/events/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(eventData),
+    });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to update event");
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Failed to update event:", error);
+    throw error;
   }
-
-  return data;
 };
+
 
 const deleteEvent = async (id) => {
-  const response = await fetch(`${API_URL}/events/${id}`, {
-    method: "DELETE",
-    headers: getAuthHeaders(),
-  });
+  try {
+    const response = await fetch(`${API_URL}/events/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to delete event");
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Failed to delete event:", error);
+    throw error;
   }
-
-  return data;
 };
+
+
+// ============================================================
+// API INFORMATION
+// ============================================================
+
+console.log(
+  `🌐 API Environment: ${isLocal ? "LOCAL" : "PRODUCTION"}`
+);
+
+console.log(`🔗 API URL: ${API_URL}`);
+
+
+// ============================================================
+// EXPOSE API
+// ============================================================
 
 window.api = {
   loginAdmin,
