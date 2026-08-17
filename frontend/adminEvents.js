@@ -28,11 +28,6 @@ const videoInput = document.getElementById("video");
 
 let editingEventId = null;
 
-/*
- * Instead of storing only one URL,
- * we now keep arrays.
- */
-
 let selectedImages = [];
 let selectedVideos = [];
 
@@ -47,6 +42,7 @@ const showMessage = (text, type = "success") => {
   }
 
   message.textContent = text;
+
   message.style.color =
     type === "error"
       ? "#dc2626"
@@ -108,43 +104,40 @@ const formatDate = (dateString) => {
 
 const resetForm = () => {
 
-  eventForm.reset();
+  if (eventForm) {
+    eventForm.reset();
+  }
 
   editingEventId = null;
 
   selectedImages = [];
   selectedVideos = [];
 
-  formTitle.textContent = "Create Event";
+  if (formTitle) {
+    formTitle.textContent = "Create Event";
+  }
 
-  saveButton.textContent = "Create Event";
+  if (saveButton) {
+    saveButton.textContent = "Create Event";
+    saveButton.disabled = false;
+  }
 
-  cancelButton.style.display = "none";
-
-
-  /*
-   * Clear media previews
-   */
+  if (cancelButton) {
+    cancelButton.style.display = "none";
+  }
 
   renderImagePreviews();
   renderVideoPreviews();
 
-
   const imageUploadStatus =
-    document.getElementById(
-      "imageUploadStatus"
-    );
+    document.getElementById("imageUploadStatus");
 
   const videoUploadStatus =
-    document.getElementById(
-      "videoUploadStatus"
-    );
-
+    document.getElementById("videoUploadStatus");
 
   if (imageUploadStatus) {
     imageUploadStatus.textContent = "";
   }
-
 
   if (videoUploadStatus) {
     videoUploadStatus.textContent = "";
@@ -153,7 +146,7 @@ const resetForm = () => {
 
 
 /* =========================================
-   MEDIA PREVIEW CONTAINER
+   IMAGE PREVIEW CONTAINER
 ========================================= */
 
 const getImagePreviewContainer = () => {
@@ -183,14 +176,20 @@ const getImagePreviewContainer = () => {
     container.style.marginTop =
       "12px";
 
-    imageInput.parentElement.appendChild(
-      container
-    );
+    if (imageInput.parentElement) {
+      imageInput.parentElement.appendChild(
+        container
+      );
+    }
   }
 
   return container;
 };
 
+
+/* =========================================
+   VIDEO PREVIEW CONTAINER
+========================================= */
 
 const getVideoPreviewContainer = () => {
 
@@ -219,9 +218,11 @@ const getVideoPreviewContainer = () => {
     container.style.marginTop =
       "12px";
 
-    videoInput.parentElement.appendChild(
-      container
-    );
+    if (videoInput.parentElement) {
+      videoInput.parentElement.appendChild(
+        container
+      );
+    }
   }
 
   return container;
@@ -243,11 +244,9 @@ const renderImagePreviews = () => {
 
   container.innerHTML = "";
 
-
   if (!selectedImages.length) {
     return;
   }
-
 
   selectedImages.forEach(
     (item, index) => {
@@ -274,7 +273,8 @@ const renderImagePreviews = () => {
       const image =
         document.createElement("img");
 
-      image.src = item.url;
+      image.src =
+        item.url;
 
       image.alt =
         `Event image ${index + 1}`;
@@ -368,7 +368,6 @@ const renderImagePreviews = () => {
       remove.style.lineHeight =
         "28px";
 
-
       remove.addEventListener(
         "click",
         () => {
@@ -379,19 +378,15 @@ const renderImagePreviews = () => {
           );
 
           renderImagePreviews();
-
         }
       );
 
 
       wrapper.appendChild(image);
-
       wrapper.appendChild(number);
-
       wrapper.appendChild(remove);
 
       container.appendChild(wrapper);
-
     }
   );
 };
@@ -412,11 +407,9 @@ const renderVideoPreviews = () => {
 
   container.innerHTML = "";
 
-
   if (!selectedVideos.length) {
     return;
   }
-
 
   selectedVideos.forEach(
     (item, index) => {
@@ -443,9 +436,11 @@ const renderVideoPreviews = () => {
       const video =
         document.createElement("video");
 
-      video.src = item.url;
+      video.src =
+        item.url;
 
-      video.controls = true;
+      video.controls =
+        true;
 
       video.preload =
         "metadata";
@@ -547,19 +542,15 @@ const renderVideoPreviews = () => {
           );
 
           renderVideoPreviews();
-
         }
       );
 
 
       wrapper.appendChild(video);
-
       wrapper.appendChild(number);
-
       wrapper.appendChild(remove);
 
       container.appendChild(wrapper);
-
     }
   );
 };
@@ -586,6 +577,14 @@ const loadEvents = async () => {
       await window.api.getEvents();
 
 
+    if (!Array.isArray(events)) {
+
+      throw new Error(
+        "Invalid events response from server."
+      );
+    }
+
+
     if (!events.length) {
 
       eventsTableBody.innerHTML = `
@@ -604,12 +603,6 @@ const loadEvents = async () => {
       events
         .map(
           (event) => {
-
-            /*
-             * The API may return media
-             * depending on how getEvents()
-             * is implemented.
-             */
 
             const media =
               Array.isArray(event.media)
@@ -632,11 +625,6 @@ const loadEvents = async () => {
                   "video"
               ).length;
 
-
-            /*
-             * Fallback to old fields
-             * if media isn't returned.
-             */
 
             const hasImage =
               imageCount > 0 ||
@@ -699,7 +687,6 @@ const loadEvents = async () => {
                           </div>
                         `
                     }
-
 
                     <div>
 
@@ -807,7 +794,10 @@ const loadEvents = async () => {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Failed to load events:",
+      error
+    );
 
     showMessage(
       error.message,
@@ -826,114 +816,6 @@ const loadEvents = async () => {
 
 
 /* =========================================
-   UPLOAD IMAGE
-========================================= */
-
-const uploadImage = async (file) => {
-
-  if (!file) {
-    return null;
-  }
-
-
-  const formData =
-    new FormData();
-
-  formData.append(
-    "image",
-    file
-  );
-
-
-  const response =
-    await fetch(
-      "http://localhost:5001/api/events/upload-image",
-      {
-        method: "POST",
-
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
-
-        body: formData,
-      }
-    );
-
-
-  const data =
-    await response.json();
-
-
-  if (!response.ok) {
-
-    throw new Error(
-      data.message ||
-      "Image upload failed"
-    );
-
-  }
-
-
-  return data.image_url;
-};
-
-
-/* =========================================
-   UPLOAD VIDEO
-========================================= */
-
-const uploadVideo = async (file) => {
-
-  if (!file) {
-    return null;
-  }
-
-
-  const formData =
-    new FormData();
-
-  formData.append(
-    "video",
-    file
-  );
-
-
-  const response =
-    await fetch(
-      "http://localhost:5001/api/events/upload-video",
-      {
-        method: "POST",
-
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
-
-        body: formData,
-      }
-    );
-
-
-  const data =
-    await response.json();
-
-
-  if (!response.ok) {
-
-    throw new Error(
-      data.message ||
-      "Video upload failed"
-    );
-
-  }
-
-
-  return data.video_url;
-};
-
-
-/* =========================================
    TITLE → SLUG
 ========================================= */
 
@@ -944,10 +826,7 @@ if (titleInput) {
     () => {
 
       const slugInput =
-        document.getElementById(
-          "slug"
-        );
-
+        document.getElementById("slug");
 
       if (slugInput) {
 
@@ -955,12 +834,9 @@ if (titleInput) {
           generateSlug(
             titleInput.value
           );
-
       }
-
     }
   );
-
 }
 
 
@@ -985,19 +861,9 @@ if (imageInput) {
       }
 
 
-      /*
-       * Maximum 5 MB per image.
-       */
-
       const maxSize =
         5 * 1024 * 1024;
 
-
-      /*
-       * Clear input immediately so
-       * the same file can be selected
-       * again later.
-       */
 
       imageInput.value = "";
 
@@ -1047,20 +913,32 @@ if (imageInput) {
           );
 
 
-          const url =
-            await uploadImage(
+          const result =
+            await window.api.uploadImage(
               file
             );
+
+
+          const url =
+            result.image_url;
+
+
+          if (!url) {
+
+            throw new Error(
+              "Image upload succeeded but no image URL was returned."
+            );
+          }
 
 
           selectedImages.push({
             url,
             name: file.name,
+            existing: false,
           });
 
 
           renderImagePreviews();
-
         }
 
 
@@ -1072,21 +950,21 @@ if (imageInput) {
           } ready.`
         );
 
-
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Image upload failed:",
+          error
+        );
 
         showMessage(
           error.message,
           "error"
         );
-
       }
 
     }
   );
-
 }
 
 
@@ -1170,20 +1048,32 @@ if (videoInput) {
           );
 
 
-          const url =
-            await uploadVideo(
+          const result =
+            await window.api.uploadVideo(
               file
             );
+
+
+          const url =
+            result.video_url;
+
+
+          if (!url) {
+
+            throw new Error(
+              "Video upload succeeded but no video URL was returned."
+            );
+          }
 
 
           selectedVideos.push({
             url,
             name: file.name,
+            existing: false,
           });
 
 
           renderVideoPreviews();
-
         }
 
 
@@ -1195,21 +1085,21 @@ if (videoInput) {
           } ready.`
         );
 
-
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Video upload failed:",
+          error
+        );
 
         showMessage(
           error.message,
           "error"
         );
-
       }
 
     }
   );
-
 }
 
 
@@ -1221,29 +1111,45 @@ const startEdit = async (id) => {
 
   try {
 
-    const response =
-      await fetch(
-        `http://localhost:5001/api/events/${id}`
-      );
+    showMessage(
+      "Loading event..."
+    );
 
+
+    /*
+     * IMPORTANT:
+     *
+     * We do NOT construct the URL here.
+     *
+     * window.api.getEvent()
+     * decides whether to use:
+     *
+     * localhost
+     *
+     * or
+     *
+     * Render
+     */
 
     const event =
-      await response.json();
+      await window.api.getEvent(id);
 
 
-    if (!response.ok) {
+    if (!event) {
 
       throw new Error(
-        event.message ||
-        "Failed to load event"
+        "Event not found."
       );
-
     }
 
 
     editingEventId =
       event.id;
 
+
+    /* =====================================
+       BASIC EVENT FIELDS
+    ===================================== */
 
     document.getElementById(
       "title"
@@ -1276,12 +1182,11 @@ const startEdit = async (id) => {
       "draft";
 
 
-    /*
-     * Load ALL existing media.
-     */
+    /* =====================================
+       MEDIA
+    ===================================== */
 
     selectedImages = [];
-
     selectedVideos = [];
 
 
@@ -1298,12 +1203,18 @@ const startEdit = async (id) => {
           ) {
 
             selectedImages.push({
-              url: item.media_url,
-              name: "Existing image",
-              existing: true,
-              id: item.id,
-            });
+              url:
+                item.media_url,
 
+              name:
+                "Existing image",
+
+              existing:
+                true,
+
+              id:
+                item.id,
+            });
           }
 
 
@@ -1313,12 +1224,18 @@ const startEdit = async (id) => {
           ) {
 
             selectedVideos.push({
-              url: item.media_url,
-              name: "Existing video",
-              existing: true,
-              id: item.id,
-            });
+              url:
+                item.media_url,
 
+              name:
+                "Existing video",
+
+              existing:
+                true,
+
+              id:
+                item.id,
+            });
           }
 
         }
@@ -1327,41 +1244,48 @@ const startEdit = async (id) => {
     } else {
 
       /*
-       * Backwards compatibility.
+       * Backwards compatibility
+       * for old events.
        */
 
       if (event.image_url) {
 
         selectedImages.push({
-          url: event.image_url,
-          name: "Existing image",
-          existing: true,
-        });
+          url:
+            event.image_url,
 
+          name:
+            "Existing image",
+
+          existing:
+            true,
+        });
       }
 
 
       if (event.video_url) {
 
         selectedVideos.push({
-          url: event.video_url,
-          name: "Existing video",
-          existing: true,
+          url:
+            event.video_url,
+
+          name:
+            "Existing video",
+
+          existing:
+            true,
         });
-
       }
-
     }
 
 
     renderImagePreviews();
-
     renderVideoPreviews();
 
 
-    /*
-     * Date
-     */
+    /* =====================================
+       DATE
+    ===================================== */
 
     if (event.event_date) {
 
@@ -1381,13 +1305,23 @@ const startEdit = async (id) => {
           .slice(0, 16);
 
 
-      document.getElementById(
-        "event_date"
-      ).value =
-        localDate;
+      const dateInput =
+        document.getElementById(
+          "event_date"
+        );
 
+
+      if (dateInput) {
+
+        dateInput.value =
+          localDate;
+      }
     }
 
+
+    /* =====================================
+       CHANGE FORM TO EDIT MODE
+    ===================================== */
 
     formTitle.textContent =
       "Edit Event";
@@ -1401,23 +1335,28 @@ const startEdit = async (id) => {
       "inline-block";
 
 
+    showMessage(
+      `Editing "${event.title}"`
+    );
+
+
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
 
-
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Failed to load event:",
+      error
+    );
 
     showMessage(
       error.message,
       "error"
     );
-
   }
-
 };
 
 
@@ -1452,18 +1391,18 @@ const removeEvent = async (id) => {
 
     await loadEvents();
 
-
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Failed to delete event:",
+      error
+    );
 
     showMessage(
       error.message,
       "error"
     );
-
   }
-
 };
 
 
@@ -1471,202 +1410,253 @@ const removeEvent = async (id) => {
    SUBMIT EVENT
 ========================================= */
 
-eventForm.addEventListener(
-  "submit",
-  async (event) => {
+if (eventForm) {
 
-    event.preventDefault();
+  eventForm.addEventListener(
+    "submit",
+    async (event) => {
 
-
-    const title =
-      document
-        .getElementById("title")
-        .value
-        .trim();
+      event.preventDefault();
 
 
-    if (!title) {
-
-      showMessage(
-        "Event title is required.",
-        "error"
-      );
-
-      return;
-    }
-
-
-    /*
-     * Convert our media state
-     * into arrays of URLs.
-     */
-
-    const imageUrls =
-      selectedImages.map(
-        item => item.url
-      );
-
-
-    const videoUrls =
-      selectedVideos.map(
-        item => item.url
-      );
-
-
-    const eventData = {
-
-      title,
-
-      slug:
-        generateSlug(title),
-
-      description:
+      const title =
         document
-          .getElementById(
-            "description"
-          )
+          .getElementById("title")
           .value
-          .trim(),
-
-      event_date:
-        document
-          .getElementById(
-            "event_date"
-          )
-          .value,
-
-      location:
-        document
-          .getElementById(
-            "location"
-          )
-          .value
-          .trim(),
-
-      /*
-       * New multi-media fields.
-       */
-
-      image_urls:
-        imageUrls,
-
-      video_urls:
-        videoUrls,
+          .trim();
 
 
-      /*
-       * Keep the old fields too
-       * for backwards compatibility.
-       */
-
-      image_url:
-        imageUrls[0] || "",
-
-      video_url:
-        videoUrls[0] || "",
-
-      status:
-        document
-          .getElementById(
-            "status"
-          )
-          .value,
-    };
-
-
-    saveButton.disabled =
-      true;
-
-
-    try {
-
-      if (editingEventId) {
-
-        await window.api.updateEvent(
-          editingEventId,
-          eventData
-        );
-
+      if (!title) {
 
         showMessage(
-          "Event updated successfully."
+          "Event title is required.",
+          "error"
         );
 
-
-      } else {
-
-        await window.api.createEvent(
-          eventData
-        );
-
-
-        showMessage(
-          "Event created successfully."
-        );
-
+        return;
       }
 
 
-      resetForm();
+      /* ===================================
+         MEDIA URL ARRAYS
+      =================================== */
 
-      await loadEvents();
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      showMessage(
-        error.message,
-        "error"
-      );
+      const imageUrls =
+        selectedImages
+          .map(
+            item => item.url
+          )
+          .filter(Boolean);
 
 
-    } finally {
+      const videoUrls =
+        selectedVideos
+          .map(
+            item => item.url
+          )
+          .filter(Boolean);
+
+
+      /* ===================================
+         EVENT DATA
+      =================================== */
+
+      const eventData = {
+
+        title,
+
+        slug:
+          generateSlug(title),
+
+        description:
+          document
+            .getElementById(
+              "description"
+            )
+            .value
+            .trim(),
+
+        event_date:
+          document
+            .getElementById(
+              "event_date"
+            )
+            .value,
+
+        location:
+          document
+            .getElementById(
+              "location"
+            )
+            .value
+            .trim(),
+
+        image_urls:
+          imageUrls,
+
+        video_urls:
+          videoUrls,
+
+        /*
+         * Backwards compatibility.
+         */
+
+        image_url:
+          imageUrls[0] || "",
+
+        video_url:
+          videoUrls[0] || "",
+
+        status:
+          document
+            .getElementById(
+              "status"
+            )
+            .value,
+      };
+
+
+      /* ===================================
+         DISABLE BUTTON
+      =================================== */
 
       saveButton.disabled =
-        false;
+        true;
+
+
+      const originalButtonText =
+        saveButton.textContent;
+
+
+      try {
+
+        /* =================================
+           UPDATE
+        ================================= */
+
+        if (editingEventId !== null) {
+
+          saveButton.textContent =
+            "Updating...";
+
+
+          await window.api.updateEvent(
+            editingEventId,
+            eventData
+          );
+
+
+          showMessage(
+            "Event updated successfully."
+          );
+
+
+        }
+
+        /* =================================
+           CREATE
+        ================================= */
+
+        else {
+
+          saveButton.textContent =
+            "Creating...";
+
+
+          await window.api.createEvent(
+            eventData
+          );
+
+
+          showMessage(
+            "Event created successfully."
+          );
+        }
+
+
+        /* =================================
+           RESET + RELOAD
+        ================================= */
+
+        resetForm();
+
+        await loadEvents();
+
+      } catch (error) {
+
+        console.error(
+          "Failed to save event:",
+          error
+        );
+
+        showMessage(
+          error.message,
+          "error"
+        );
+
+      } finally {
+
+        saveButton.disabled =
+          false;
+
+        if (
+          !editingEventId &&
+          saveButton
+        ) {
+          saveButton.textContent =
+            originalButtonText;
+        }
+      }
 
     }
-
-  }
-);
+  );
+}
 
 
 /* =========================================
    CANCEL EDIT
 ========================================= */
 
-cancelButton.addEventListener(
-  "click",
-  () => {
-    resetForm();
-  }
-);
+if (cancelButton) {
+
+  cancelButton.addEventListener(
+    "click",
+    () => {
+
+      resetForm();
+
+      showMessage(
+        "Edit cancelled."
+      );
+    }
+  );
+}
 
 
 /* =========================================
    LOGOUT
 ========================================= */
 
-logoutButton.addEventListener(
-  "click",
-  () => {
+if (logoutButton) {
 
-    localStorage.removeItem(
-      "soundEventsToken"
-    );
+  logoutButton.addEventListener(
+    "click",
+    () => {
 
-    localStorage.removeItem(
-      "soundEventsAdmin"
-    );
+      localStorage.removeItem(
+        "soundEventsToken"
+      );
+
+      localStorage.removeItem(
+        "soundEventsAdmin"
+      );
 
 
-    window.location.href =
-      "login.html";
-
-  }
-);
+      window.location.href =
+        "login.html";
+    }
+  );
+}
 
 
 /* =========================================
