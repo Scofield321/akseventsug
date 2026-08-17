@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>About Us — AKS Events Uganda</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080808;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1180px, 92%);
+      margin: auto;
+    }
+
+    /* =========================================
+       NAVIGATION
+    ========================================= */
+
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 20;
+      padding: 24px 0;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .logo span {
+      opacity: 0.55;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      opacity: 0.75;
+      transition: 0.25s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      opacity: 1;
+    }
+
+    .nav-cta {
+      padding: 11px 18px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 30px;
+      opacity: 1 !important;
+    }
+
+    /* =========================================
+       HERO
+    ========================================= */
+
+    .about-hero {
+      min-height: 78vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(
+          circle at 75% 35%,
+          rgba(255,255,255,0.10),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 20% 80%,
+          rgba(255,255,255,0.05),
+          transparent 35%
+        ),
+        #080808;
+    }
+
+    .about-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          120deg,
+          transparent,
+          rgba(255,255,255,0.025),
+          transparent
+        );
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 850px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 22px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.55;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(48px, 8vw, 92px);
+      line-height: 0.98;
+      letter-spacing: -4px;
+      margin: 0 0 30px;
+    }
+
+    .hero-content h1 span {
+      opacity: 0.45;
+    }
+
+    .hero-content p {
+      max-width: 650px;
+      font-size: 20px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.68);
+      margin: 0;
+    }
+
+    /* =========================================
+       INTRO
+    ========================================= */
+
+    .section {
+      padding: 110px 0;
+    }
+
+    .intro {
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+
+    .intro h2 {
+      font-size: clamp(36px, 5vw, 60px);
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin: 18px 0 0;
+    }
+
+    .intro-copy p {
+      font-size: 19px;
+      color: #4b5563;
+      margin: 0 0 25px;
+    }
+
+    .intro-copy p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* =========================================
+       VALUES
+    ========================================= */
+
+    .values {
+      background: #f3f3f3;
+      color: #111111;
+    }
+
+    .values-header {
+      max-width: 700px;
+      margin-bottom: 60px;
+    }
+
+    .values-header h2 {
+      font-size: clamp(38px, 5vw, 62px);
+      line-height: 1;
+      letter-spacing: -3px;
+      margin: 15px 0 20px;
+    }
+
+    .values-header p {
+      color: #555;
+      font-size: 18px;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .value-card {
+      background: #ffffff;
+      padding: 35px;
+      min-height: 260px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .value-number {
+      font-size: 13px;
+      opacity: 0.4;
+    }
+
+    .value-card h3 {
+      font-size: 25px;
+      margin: 0 0 12px;
+    }
+
+    .value-card p {
+      margin: 0;
+      color: #666;
+    }
+
+    /* =========================================
+       EXPERIENCE
+    ========================================= */
+
+    .experience {
+      background: #080808;
+    }
+
+    .experience-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .experience h2 {
+      font-size: clamp(40px, 5vw, 64px);
+      line-height: 1;
+      letter-spacing: -3px;
+      margin: 18px 0 25px;
+    }
+
+    .experience p {
+      font-size: 18px;
+      color: rgba(255,255,255,0.62);
+    }
+
+    .experience-list {
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .experience-item {
+      padding: 24px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .experience-item strong {
+      font-size: 17px;
+    }
+
+    .experience-item span {
+      color: rgba(255,255,255,0.45);
+      text-align: right;
+    }
+
+    /* =========================================
+       CTA
+    ========================================= */
+
+    .cta {
+      padding: 130px 0;
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(255,255,255,0.10),
+          transparent 45%
+        ),
+        #111111;
+      text-align: center;
+    }
+
+    .cta h2 {
+      max-width: 800px;
+      margin: 15px auto 25px;
+      font-size: clamp(44px, 7vw, 82px);
+      line-height: 0.98;
+      letter-spacing: -4px;
+    }
+
+    .cta p {
+      max-width: 600px;
+      margin: 0 auto 35px;
+      color: rgba(255,255,255,0.6);
+      font-size: 18px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 23px;
+      border-radius: 30px;
+      font-weight: 700;
+      transition: 0.25s ease;
+    }
+
+    .button-primary {
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .button-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-secondary {
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+    }
+
+    .button-secondary:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* =========================================
+       CONTACT
+    ========================================= */
+
+    .contact {
+      background: #ffffff;
+      color: #111111;
+      padding: 80px 0;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .contact h2 {
+      font-size: 42px;
+      line-height: 1.05;
+      margin: 12px 0;
+      letter-spacing: -2px;
+    }
+
+    .contact p {
+      color: #666;
+      max-width: 520px;
+    }
+
+    .contact-details {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .contact-link {
+      padding: 20px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 19px;
+      font-weight: 600;
+    }
+
+    .contact-link small {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 5px;
+    }
+
+    /* =========================================
+       FOOTER
+    ========================================= */
+
+    footer {
+      background: #080808;
+      color: white;
+      padding: 35px 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .footer-inner p {
+      margin: 0;
+      color: rgba(255,255,255,0.4);
+      font-size: 13px;
+    }
+
+    /* =========================================
+       MOBILE
+    ========================================= */
+
+    @media (max-width: 800px) {
+
+      .nav-links {
+        display: none;
+      }
+
+      .about-hero {
+        min-height: 70vh;
+      }
+
+      .hero-content h1 {
+        letter-spacing: -2px;
+      }
+
+      .intro-grid,
+      .experience-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .values-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 75px 0;
+      }
+
+      .cta {
+        padding: 90px 0;
+      }
+
+      .cta h2 {
+        letter-spacing: -2px;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================================
+       HEADER
+  ========================================== -->
+
+  <header>
+
+    <div class="container nav">
+
+      <a href="index.html" class="logo">
+        AKS<span>EVENTS</span>
+      </a>
+
+      <nav class="nav-links">
+
+        <a href="index.html">
+          Home
+        </a>
+
+        <a href="events.html">
+          Events
+        </a>
+
+        <a href="about.html" class="active">
+          About
+        </a>
+
+        <a href="contact.html" class="nav-cta">
+          Get in touch →
+        </a>
+
+      </nav>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================================
+       HERO
+  ========================================== -->
+
+  <section class="about-hero">
+
+    <div class="container">
+
+      <div class="hero-content">
+
+        <span class="eyebrow">
+          About AKS Events
+        </span>
+
+        <h1>
+          We create
+          <span>moments worth remembering.</span>
+        </h1>
+
+        <p>
+          AKS Events is about bringing people together through
+          experiences that feel alive, meaningful and unforgettable.
+          From the energy of a packed room to the moments shared
+          between people, we believe great events are more than
+          what happens on stage, they are what people take home
+          with them.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       WHO WE ARE
+  ========================================== -->
+
+  <section class="section intro">
+
+    <div class="container">
+
+      <div class="intro-grid">
+
+        <div>
+
+          <div class="section-label">
+            Who we are
+          </div>
+
+          <h2>
+            More than an event.
+            It's an experience.
+          </h2>
+
+        </div>
+
+
+        <div class="intro-copy">
+
+          <p>
+            At AKS Events, we bring together the people,
+            creativity and energy required to turn an idea into
+            an experience people remember.
+          </p>
+
+          <p>
+            We are passionate about events that connect people,
+            create opportunities and leave an impression long
+            after the lights go down.
+          </p>
+
+          <p>
+            Whether you're planning a private celebration,
+            corporate gathering, concert, launch, social experience
+            or something completely different, we're here to help
+            bring it to life.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       VALUES
+  ========================================== -->
+
+  <section class="section values">
+
+    <div class="container">
+
+      <div class="values-header">
+
+        <div class="section-label">
+          What we believe
+        </div>
+
+        <h2>
+          The details matter.
+        </h2>
+
+        <p>
+          Because the best experiences don't happen by accident.
+          They happen when every detail is given the attention
+          it deserves.
+        </p>
+
+      </div>
+
+
+      <div class="values-grid">
+
+        <div class="value-card">
+
+          <div class="value-number">
+            01
+          </div>
+
+          <div>
+
+            <h3>
+              People first.
+            </h3>
+
+            <p>
+              Every event begins with people. We create experiences
+              designed around how people connect, interact and feel.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="value-card">
+
+          <div class="value-number">
+            02
+          </div>
+
+          <div>
+
+            <h3>
+              Every detail.
+            </h3>
+
+            <p>
+              From the first idea to the final moment, we believe
+              thoughtful details are what turn an ordinary event
+              into an extraordinary experience.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="value-card">
+
+          <div class="value-number">
+            03
+          </div>
+
+          <div>
+
+            <h3>
+              Make it memorable.
+            </h3>
+
+            <p>
+              Our goal isn't simply to put an event together.
+              It's to create something people will talk about,
+              share and remember.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       WHAT WE DO
+  ========================================== -->
+
+  <section class="section experience">
+
+    <div class="container">
+
+      <div class="experience-grid">
+
+        <div>
+
+          <div class="section-label">
+            What we do
+          </div>
+
+          <h2>
+            You bring the idea.
+            We help make it happen.
+          </h2>
+
+          <p>
+            Every event is different. That's why we work with
+            you to understand what you're trying to create and
+            help turn that vision into a real experience.
+          </p>
+
+        </div>
+
+
+        <div class="experience-list">
+
+          <div class="experience-item">
+
+            <strong>
+              Event Experiences
+            </strong>
+
+            <span>
+              Create something people remember.
+            </span>
+
+          </div>
+
+
+          <div class="experience-item">
+
+            <strong>
+              Corporate Events
+            </strong>
+
+            <span>
+              Bring teams, partners and audiences together.
+            </span>
+
+          </div>
+
+
+          <div class="experience-item">
+
+            <strong>
+              Celebrations
+            </strong>
+
+            <span>
+              Make important moments feel extraordinary.
+            </span>
+
+          </div>
+
+
+          <div class="experience-item">
+
+            <strong>
+              Concerts & Social Experiences
+            </strong>
+
+            <span>
+              Create energy, connection and unforgettable moments.
+            </span>
+
+          </div>
+
+
+          <div class="experience-item">
+
+            <strong>
+              Event Partnerships
+            </strong>
+
+            <span>
+              Let's build something valuable together.
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       CTA
+  ========================================== -->
+
+  <section class="cta">
+
+    <div class="container">
+
+      <span class="section-label">
+        Let's create something
+      </span>
+
+      <h2>
+        Have an idea?
+        <br />
+        Let's talk.
+      </h2>
+
+      <p>
+        Whether you already have everything planned or you're
+        starting with nothing more than an idea, we'd love to
+        hear what you're thinking.
+      </p>
+
+      <div class="cta-buttons">
+
+        <a
+          href="tel:+256758654931"
+          class="button button-primary"
+        >
+          Call us
+          <span>→</span>
+        </a>
+
+        <a
+          href="mailto:partner@akseventsug.com"
+          class="button button-secondary"
+        >
+          Email us
+          <span>→</span>
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       CONTACT
+  ========================================== -->
+
+  <section class="contact">
+
+    <div class="container">
+
+      <div class="contact-grid">
+
+        <div>
+
+          <div class="section-label">
+            Get in touch
+          </div>
+
+          <h2>
+            Let's make your
+            next event special.
+          </h2>
+
+          <p>
+            Tell us what you're planning, what you're dreaming
+            about, or what you need help with. We'll take it from
+            there.
+          </p>
+
+        </div>
+
+
+        <div class="contact-details">
+
+          <a
+            href="tel:+256758654931"
+            class="contact-link"
+          >
+
+            <small>
+              Phone
+            </small>
+
+            +256 758 654 931
+
+          </a>
+
+
+          <a
+            href="mailto:partner@akseventsug.com"
+            class="contact-link"
+          >
+
+            <small>
+              Email
+            </small>
+
+            partner@akseventsug.com
+
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       FOOTER
+  ========================================== -->
+
+  <footer>
+
+    <div class="container">
+
+      <div class="footer-inner">
+
+        <div class="logo">
+          AKS<span>EVENTS</span>
+        </div>
+
+        <p>
+          © <span id="currentYear"></span> AKS Events.
+          All rights reserved.
+        </p>
+
+      </div>
+
+    </div>
+
+  </footer>
+
+
+  <script>
+    document.getElementById("currentYear").textContent =
+      new Date().getFullYear();
+  </script>
+
+</body>
+</html>

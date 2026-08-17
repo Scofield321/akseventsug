@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Admin Dashboard - Sound Events</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #111827;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 18px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    #logoutButton {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 9px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 30px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .welcome {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+      margin-bottom: 25px;
+    }
+
+    .welcome h2 {
+      margin-top: 0;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .card p {
+      color: #6b7280;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Sound Events Admin</h1>
+
+    <button id="logoutButton">
+      Logout
+    </button>
+  </header>
+
+  <main>
+
+    <section class="welcome">
+      <h2 id="welcomeMessage">Welcome</h2>
+      <p>You are successfully logged into the Sound Events administration system.</p>
+    </section>
+
+    <section class="cards">
+
+      <div class="card">
+        <h3>Events</h3>
+        <p>Manage your events.</p>
+      </div>
+
+      <div class="card">
+        <h3>Content</h3>
+        <p>Manage website content.</p>
+      </div>
+
+      <div class="card">
+        <h3>Administration</h3>
+        <p>Manage your administration account.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="adminDashboard.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,814 @@
+/* =========================================
+   SOUND EVENTS
+   EVENT DETAIL PAGE
+========================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  initializeNavigation();
+
+  setCurrentYear();
+
+  loadEvent();
+
+});
+
+
+/* =========================================
+   MOBILE NAVIGATION
+========================================= */
+
+const initializeNavigation = () => {
+
+  const button =
+    document.getElementById("mobileMenuButton");
+
+  const menu =
+    document.getElementById("mobileNav");
+
+  if (!button || !menu) {
+    return;
+  }
+
+
+  button.addEventListener("click", () => {
+
+    menu.classList.toggle("open");
+
+  });
+
+
+  menu.querySelectorAll("a").forEach((link) => {
+
+    link.addEventListener("click", () => {
+
+      menu.classList.remove("open");
+
+    });
+
+  });
+
+};
+
+
+/* =========================================
+   LOAD EVENT
+========================================= */
+
+const loadEvent = async () => {
+
+  const page =
+    document.getElementById("eventPage");
+
+  if (!page) {
+    return;
+  }
+
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  const eventId =
+    params.get("id");
+
+
+  if (!eventId) {
+
+    showEventError(
+      page,
+      "Event not found",
+      "We couldn't find the event you're looking for."
+    );
+
+    return;
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/events/${encodeURIComponent(eventId)}`
+      );
+
+
+    const event =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        event.message ||
+        "Failed to load event"
+      );
+
+    }
+
+
+    if (event.status !== "published") {
+
+      showEventError(
+        page,
+        "Event unavailable",
+        "This experience is not currently available."
+      );
+
+      return;
+    }
+
+
+    renderEvent(page, event);
+
+
+    document.title =
+      `${event.title} — Sound Events`;
+
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load event:",
+      error
+    );
+
+
+    showEventError(
+      page,
+      "Something went wrong",
+      "We couldn't load this experience right now."
+    );
+
+  }
+
+};
+
+
+/* =========================================
+   RENDER EVENT
+========================================= */
+
+const renderEvent = (
+  container,
+  event
+) => {
+
+  const formattedDate =
+    formatEventDate(
+      event.event_date
+    );
+
+
+  /* =========================================
+   EVENT MEDIA GALLERY
+========================================= */
+
+const media = Array.isArray(event.media)
+  ? event.media
+  : [];
+
+
+/*
+ * Backwards compatibility:
+ * If an event has the old image_url but
+ * doesn't have it inside event.media,
+ * include it in the gallery.
+ */
+
+if (
+  event.image_url &&
+  !media.some(
+    (item) =>
+      item.media_url === event.image_url
+  )
+) {
+
+  media.unshift({
+    id: "legacy-image",
+    media_type: "image",
+    media_url: event.image_url,
+    thumbnail_url: null,
+    sort_order: -1,
+  });
+
+}
+
+
+const imageCount =
+  media.filter(
+    (item) =>
+      item.media_type === "image"
+  ).length;
+
+
+const videoCount =
+  media.filter(
+    (item) =>
+      item.media_type === "video"
+  ).length;
+
+
+const mediaGallery =
+  media.length
+    ? `
+
+      <section class="event-media-section">
+
+        <div class="event-media-heading">
+
+          <div>
+
+            <span>
+              THE EXPERIENCE
+            </span>
+
+            <h2>
+              Moments.
+            </h2>
+
+          </div>
+
+
+          <div class="event-media-count">
+
+            ${
+              imageCount
+                ? `${imageCount} ${
+                    imageCount === 1
+                      ? "Photo"
+                      : "Photos"
+                  }`
+                : ""
+            }
+
+            ${
+              imageCount && videoCount
+                ? " · "
+                : ""
+            }
+
+            ${
+              videoCount
+                ? `${videoCount} ${
+                    videoCount === 1
+                      ? "Video"
+                      : "Videos"
+                  }`
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="event-media-gallery"
+          data-media-count="${media.length}"
+        >
+
+          ${
+
+            media
+              .map(
+                (item, index) => {
+
+                  if (
+                    item.media_type ===
+                    "video"
+                  ) {
+
+                    return `
+
+                      <article
+                        class="
+                          media-card
+                          media-video-card
+                        "
+                        data-index="${index}"
+                      >
+
+                        <video
+                          class="media-video"
+                          preload="metadata"
+                          muted
+                          playsinline
+                          poster="${
+                            item.thumbnail_url
+                              ? escapeHtml(
+                                  item.thumbnail_url
+                                )
+                              : ""
+                          }"
+                        >
+
+                          <source
+                            src="${escapeHtml(
+                              item.media_url
+                            )}"
+                          >
+
+                        </video>
+
+
+                        <div class="media-video-overlay">
+
+                          <div class="media-play">
+
+                            ▶
+
+                          </div>
+
+                        </div>
+
+
+                        <div class="media-label">
+
+                          VIDEO
+
+                        </div>
+
+                      </article>
+
+                    `;
+
+                  }
+
+
+                  return `
+
+                    <article
+                      class="
+                        media-card
+                        media-image-card
+                      "
+                      data-index="${index}"
+                    >
+
+                      <img
+                        src="${escapeHtml(
+                          item.media_url
+                        )}"
+                        alt="${escapeHtml(
+                          event.title
+                        )} — Moment ${
+                          index + 1
+                        }"
+                        loading="lazy"
+                      >
+
+
+                      <div
+                        class="media-image-overlay"
+                      >
+
+                        <span>
+                          VIEW
+                        </span>
+
+                      </div>
+
+                    </article>
+
+                  `;
+
+                }
+              )
+              .join("")
+
+          }
+
+        </div>
+
+      </section>
+
+    `
+    : "";
+
+
+  const videoSection =
+    event.video_url
+      ? `
+
+        <section class="event-video-section">
+
+          <div class="event-video-heading">
+
+            <span>
+              Experience the moment
+            </span>
+
+            <h2>
+              Watch.
+            </h2>
+
+          </div>
+
+
+          <div class="event-video-wrapper">
+
+            <video
+              controls
+              preload="metadata"
+              playsinline
+            >
+
+              <source
+                src="${escapeHtml(event.video_url)}"
+                type="video/mp4"
+              >
+
+              Your browser does not support
+              video playback.
+
+            </video>
+
+          </div>
+
+        </section>
+
+      `
+      : "";
+
+
+  container.innerHTML = `
+
+    <!-- =====================================
+         HERO
+    ====================================== -->
+
+    <section class="event-detail-hero">
+
+      ${
+        event.image_url
+          ? `
+            <img
+              class="event-detail-background-image"
+              src="${escapeHtml(event.image_url)}"
+              alt=""
+              aria-hidden="true"
+            >
+          `
+          : ""
+      }
+
+
+      <div class="event-detail-background"></div>
+
+      <div class="event-detail-overlay"></div>
+
+
+      <div class="container event-detail-content">
+
+        <div class="event-detail-label">
+          Sound Events Experience
+        </div>
+
+
+        <h1 class="event-detail-title">
+
+          ${escapeHtml(event.title)}
+
+        </h1>
+
+
+        <div class="event-detail-meta">
+
+          <div class="event-meta-item">
+
+            <span class="event-meta-icon">
+              ◷
+            </span>
+
+            ${escapeHtml(formattedDate)}
+
+          </div>
+
+
+          ${
+            event.location
+              ? `
+                <div class="event-meta-item">
+
+                  <span class="event-meta-icon">
+                    ●
+                  </span>
+
+                  ${escapeHtml(event.location)}
+
+                </div>
+              `
+              : ""
+          }
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         CONTENT
+    ====================================== -->
+
+    <section class="event-detail-section">
+
+      <div class="container">
+
+        <div class="event-detail-grid">
+
+          <div class="event-detail-main">
+
+            ${mediaGallery}
+
+
+            ${
+              event.description
+                ? `
+
+                  <h2>
+                    About the experience
+                  </h2>
+
+                  <div
+                    class="event-detail-description"
+                  >
+                    ${escapeHtml(event.description)}
+                  </div>
+
+                `
+                : ""
+            }
+
+
+            ${videoSection}
+
+          </div>
+
+
+
+          <!-- SIDEBAR -->
+
+          <aside class="event-detail-sidebar">
+
+            <div class="sidebar-item">
+
+              <div class="sidebar-label">
+                Date
+              </div>
+
+              <div class="sidebar-value">
+                ${escapeHtml(formattedDate)}
+              </div>
+
+            </div>
+
+
+            ${
+              event.location
+                ? `
+
+                  <div class="sidebar-item">
+
+                    <div class="sidebar-label">
+                      Location
+                    </div>
+
+                    <div class="sidebar-value">
+                      ${escapeHtml(event.location)}
+                    </div>
+
+                  </div>
+
+                `
+                : ""
+            }
+
+
+            <div class="sidebar-item">
+
+              <div class="sidebar-label">
+                Experience
+              </div>
+
+              <div class="sidebar-value">
+                Sound Events
+              </div>
+
+            </div>
+
+
+            <a
+              href="events.html"
+              class="button button-primary sidebar-button"
+            >
+
+              View All Events
+
+              <span>
+                →
+              </span>
+
+            </a>
+
+          </aside>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         BOTTOM CTA
+    ====================================== -->
+
+    <section class="cta-section">
+
+      <div class="cta-glow"></div>
+
+      <div class="container cta-content">
+
+        <span class="section-label">
+          DISCOVER MORE
+        </span>
+
+        <h2>
+          Find your
+          <span>next experience.</span>
+        </h2>
+
+        <p>
+          There is always another moment waiting
+          to be experienced.
+        </p>
+
+        <a
+          href="events.html"
+          class="button button-light"
+        >
+
+          Explore Events
+
+          <span>
+            →
+          </span>
+
+        </a>
+
+      </div>
+
+    </section>
+
+  `;
+
+};
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+const showEventError = (
+  container,
+  title,
+  message
+) => {
+
+  container.innerHTML = `
+
+    <section class="event-error">
+
+      <div class="container">
+
+        <h1>
+          ${escapeHtml(title)}
+        </h1>
+
+        <p>
+          ${escapeHtml(message)}
+        </p>
+
+        <a
+          href="events.html"
+          class="button button-primary"
+        >
+
+          Back to Events
+
+          <span>
+            →
+          </span>
+
+        </a>
+
+      </div>
+
+    </section>
+
+  `;
+
+};
+
+
+/* =========================================
+   DATE
+========================================= */
+
+const formatEventDate = (
+  dateString
+) => {
+
+  if (!dateString) {
+    return "Date TBA";
+  }
+
+
+  const date =
+    new Date(dateString);
+
+
+  return date.toLocaleDateString(
+    "en-UG",
+    {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
+
+};
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+const escapeHtml = (value) => {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return "";
+  }
+
+
+  return String(value)
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+};
+
+
+/* =========================================
+   YEAR
+========================================= */
+
+const setCurrentYear = () => {
+
+  const element =
+    document.getElementById(
+      "currentYear"
+    );
+
+
+  if (element) {
+
+    element.textContent =
+      new Date().getFullYear();
+
+  }
+
+};
