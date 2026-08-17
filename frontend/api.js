@@ -143,51 +143,6 @@ const getEvent = async (id) => {
 // MEDIA UPLOADS
 // ============================================================
 
-const uploadImage = async (file) => {
-  if (!file) {
-    return null;
-  }
-
-  const formData = new FormData();
-  formData.append("image", file);
-
-  const response = await fetch(
-    `${API_URL}/events/upload-image`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: formData,
-    }
-  );
-
-  return await handleResponse(response);
-};
-
-
-const uploadVideo = async (file) => {
-  if (!file) {
-    return null;
-  }
-
-  const formData = new FormData();
-  formData.append("video", file);
-
-  const response = await fetch(
-    `${API_URL}/events/upload-video`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: formData,
-    }
-  );
-
-  return await handleResponse(response);
-};
-
 
 // ============================================================
 // EVENTS — CREATE
