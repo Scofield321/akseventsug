@@ -55,7 +55,7 @@ const showMessage = (text, type = "success") => {
 ========================================= */
 
 const generateSlug = (title) => {
-  return title
+  return String(title || "")
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, "")
@@ -94,7 +94,13 @@ const formatDate = (dateString) => {
     return "-";
   }
 
-  return new Date(dateString).toLocaleString();
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return date.toLocaleString();
 };
 
 
@@ -277,6 +283,7 @@ const renderImagePreviews = () => {
         item.url;
 
       image.alt =
+        item.name ||
         `Event image ${index + 1}`;
 
       image.style.width =
@@ -367,6 +374,12 @@ const renderImagePreviews = () => {
 
       remove.style.lineHeight =
         "28px";
+
+      remove.style.border =
+        "none";
+
+      remove.style.cursor =
+        "pointer";
 
       remove.addEventListener(
         "click",
@@ -531,6 +544,11 @@ const renderVideoPreviews = () => {
       remove.style.fontSize =
         "18px";
 
+      remove.style.border =
+        "none";
+
+      remove.style.cursor =
+        "pointer";
 
       remove.addEventListener(
         "click",
@@ -561,6 +579,10 @@ const renderVideoPreviews = () => {
 ========================================= */
 
 const loadEvents = async () => {
+
+  if (!eventsTableBody) {
+    return;
+  }
 
   try {
 
@@ -610,20 +632,40 @@ const loadEvents = async () => {
                 : [];
 
 
-            const imageCount =
+            const imageMedia =
               media.filter(
                 item =>
                   item.media_type ===
                   "image"
-              ).length;
+              );
 
 
-            const videoCount =
+            const videoMedia =
               media.filter(
                 item =>
                   item.media_type ===
                   "video"
-              ).length;
+              );
+
+
+            const imageCount =
+              imageMedia.length;
+
+
+            const videoCount =
+              videoMedia.length;
+
+
+            /*
+             * Prefer event_media image.
+             * Fall back to events.image_url
+             * for older events.
+             */
+
+            const thumbnail =
+              imageMedia.length
+                ? imageMedia[0].media_url
+                : event.image_url;
 
 
             const hasImage =
@@ -650,11 +692,11 @@ const loadEvents = async () => {
                   >
 
                     ${
-                      event.image_url
+                      thumbnail
                         ? `
                           <img
                             src="${escapeHtml(
-                              event.image_url
+                              thumbnail
                             )}"
                             alt="${escapeHtml(
                               event.title
@@ -666,7 +708,7 @@ const loadEvents = async () => {
                               border-radius:7px;
                               flex-shrink:0;
                             "
-                          >
+                          />
                         `
                         : `
                           <div
@@ -706,13 +748,19 @@ const loadEvents = async () => {
 
                         ${
                           hasImage
-                            ? `🖼 ${imageCount || 1}`
+                            ? `🖼 ${
+                                imageCount ||
+                                1
+                              }`
                             : ""
                         }
 
                         ${
                           hasVideo
-                            ? ` &nbsp; 🎥 ${videoCount || 1}`
+                            ? ` &nbsp; 🎥 ${
+                                videoCount ||
+                                1
+                              }`
                             : ""
                         }
 
@@ -746,11 +794,13 @@ const loadEvents = async () => {
 
                   <span
                     class="status ${escapeHtml(
-                      event.status
+                      event.status ||
+                      "draft"
                     )}"
                   >
                     ${escapeHtml(
-                      event.status
+                      event.status ||
+                      "draft"
                     )}
                   </span>
 
@@ -769,7 +819,10 @@ const loadEvents = async () => {
 
                     <button
                       class="edit"
-                      onclick="startEdit(${event.id})"
+                      type="button"
+                      onclick="startEdit(${Number(
+                        event.id
+                      )})"
                     >
                       Edit
                     </button>
@@ -777,7 +830,10 @@ const loadEvents = async () => {
 
                     <button
                       class="danger"
-                      onclick="removeEvent(${event.id})"
+                      type="button"
+                      onclick="removeEvent(${Number(
+                        event.id
+                      )})"
                     >
                       Delete
                     </button>
@@ -852,7 +908,7 @@ if (imageInput) {
 
       const files =
         Array.from(
-          imageInput.files
+          imageInput.files || []
         );
 
 
@@ -919,8 +975,20 @@ if (imageInput) {
             );
 
 
+          /*
+           * Support both:
+           *
+           * "https://..."
+           *
+           * and:
+           *
+           * { image_url: "https://..." }
+           */
+
           const url =
-            result.image_url;
+            typeof result === "string"
+              ? result
+              : result?.image_url;
 
 
           if (!url) {
@@ -962,7 +1030,6 @@ if (imageInput) {
           "error"
         );
       }
-
     }
   );
 }
@@ -980,7 +1047,7 @@ if (videoInput) {
 
       const files =
         Array.from(
-          videoInput.files
+          videoInput.files || []
         );
 
 
@@ -1054,8 +1121,20 @@ if (videoInput) {
             );
 
 
+          /*
+           * Support both:
+           *
+           * "https://..."
+           *
+           * and:
+           *
+           * { video_url: "https://..." }
+           */
+
           const url =
-            result.video_url;
+            typeof result === "string"
+              ? result
+              : result?.video_url;
 
 
           if (!url) {
@@ -1097,7 +1176,6 @@ if (videoInput) {
           "error"
         );
       }
-
     }
   );
 }
@@ -1115,21 +1193,6 @@ const startEdit = async (id) => {
       "Loading event..."
     );
 
-
-    /*
-     * IMPORTANT:
-     *
-     * We do NOT construct the URL here.
-     *
-     * window.api.getEvent()
-     * decides whether to use:
-     *
-     * localhost
-     *
-     * or
-     *
-     * Render
-     */
 
     const event =
       await window.api.getEvent(id);
@@ -1151,35 +1214,51 @@ const startEdit = async (id) => {
        BASIC EVENT FIELDS
     ===================================== */
 
-    document.getElementById(
-      "title"
-    ).value =
-      event.title || "";
+    const titleField =
+      document.getElementById("title");
+
+    const slugField =
+      document.getElementById("slug");
+
+    const descriptionField =
+      document.getElementById("description");
+
+    const locationField =
+      document.getElementById("location");
+
+    const statusField =
+      document.getElementById("status");
 
 
-    document.getElementById(
-      "slug"
-    ).value =
-      event.slug || "";
+    if (titleField) {
+      titleField.value =
+        event.title || "";
+    }
 
 
-    document.getElementById(
-      "description"
-    ).value =
-      event.description || "";
+    if (slugField) {
+      slugField.value =
+        event.slug || "";
+    }
 
 
-    document.getElementById(
-      "location"
-    ).value =
-      event.location || "";
+    if (descriptionField) {
+      descriptionField.value =
+        event.description || "";
+    }
 
 
-    document.getElementById(
-      "status"
-    ).value =
-      event.status ||
-      "draft";
+    if (locationField) {
+      locationField.value =
+        event.location || "";
+    }
+
+
+    if (statusField) {
+      statusField.value =
+        event.status ||
+        "draft";
+    }
 
 
     /* =====================================
@@ -1190,6 +1269,14 @@ const startEdit = async (id) => {
     selectedVideos = [];
 
 
+    /*
+     * New architecture:
+     *
+     * event.media
+     *
+     * comes from event_media table.
+     */
+
     if (
       Array.isArray(event.media)
     ) {
@@ -1199,7 +1286,8 @@ const startEdit = async (id) => {
 
           if (
             item.media_type ===
-            "image"
+              "image" &&
+            item.media_url
           ) {
 
             selectedImages.push({
@@ -1220,7 +1308,8 @@ const startEdit = async (id) => {
 
           if (
             item.media_type ===
-            "video"
+              "video" &&
+            item.media_url
           ) {
 
             selectedVideos.push({
@@ -1237,45 +1326,58 @@ const startEdit = async (id) => {
                 item.id,
             });
           }
-
         }
       );
-
-    } else {
-
-      /*
-       * Backwards compatibility
-       * for old events.
-       */
-
-      if (event.image_url) {
-
-        selectedImages.push({
-          url:
-            event.image_url,
-
-          name:
-            "Existing image",
-
-          existing:
-            true,
-        });
-      }
+    }
 
 
-      if (event.video_url) {
+    /*
+     * Legacy fallback.
+     *
+     * This allows older events that only
+     * have events.image_url/video_url
+     * to continue working.
+     */
 
-        selectedVideos.push({
-          url:
-            event.video_url,
+    if (
+      !selectedImages.length &&
+      event.image_url
+    ) {
 
-          name:
-            "Existing video",
+      selectedImages.push({
+        url:
+          event.image_url,
 
-          existing:
-            true,
-        });
-      }
+        name:
+          "Existing image",
+
+        existing:
+          true,
+
+        legacy:
+          true,
+      });
+    }
+
+
+    if (
+      !selectedVideos.length &&
+      event.video_url
+    ) {
+
+      selectedVideos.push({
+        url:
+          event.video_url,
+
+        name:
+          "Existing video",
+
+        existing:
+          true,
+
+        legacy:
+          true,
+      });
     }
 
 
@@ -1287,7 +1389,16 @@ const startEdit = async (id) => {
        DATE
     ===================================== */
 
-    if (event.event_date) {
+    const dateInput =
+      document.getElementById(
+        "event_date"
+      );
+
+
+    if (
+      dateInput &&
+      event.event_date
+    ) {
 
       const date =
         new Date(
@@ -1295,23 +1406,21 @@ const startEdit = async (id) => {
         );
 
 
-      const localDate =
-        new Date(
-          date.getTime() -
-          date.getTimezoneOffset() *
-            60000
+      if (
+        !Number.isNaN(
+          date.getTime()
         )
-          .toISOString()
-          .slice(0, 16);
+      ) {
 
+        const localDate =
+          new Date(
+            date.getTime() -
+            date.getTimezoneOffset() *
+              60000
+          )
+            .toISOString()
+            .slice(0, 16);
 
-      const dateInput =
-        document.getElementById(
-          "event_date"
-        );
-
-
-      if (dateInput) {
 
         dateInput.value =
           localDate;
@@ -1320,19 +1429,28 @@ const startEdit = async (id) => {
 
 
     /* =====================================
-       CHANGE FORM TO EDIT MODE
+       EDIT MODE
     ===================================== */
 
-    formTitle.textContent =
-      "Edit Event";
+    if (formTitle) {
+
+      formTitle.textContent =
+        "Edit Event";
+    }
 
 
-    saveButton.textContent =
-      "Update Event";
+    if (saveButton) {
+
+      saveButton.textContent =
+        "Update Event";
+    }
 
 
-    cancelButton.style.display =
-      "inline-block";
+    if (cancelButton) {
+
+      cancelButton.style.display =
+        "inline-block";
+    }
 
 
     showMessage(
@@ -1419,11 +1537,36 @@ if (eventForm) {
       event.preventDefault();
 
 
+      const titleField =
+        document.getElementById(
+          "title"
+        );
+
+      const descriptionField =
+        document.getElementById(
+          "description"
+        );
+
+      const dateField =
+        document.getElementById(
+          "event_date"
+        );
+
+      const locationField =
+        document.getElementById(
+          "location"
+        );
+
+      const statusField =
+        document.getElementById(
+          "status"
+        );
+
+
       const title =
-        document
-          .getElementById("title")
-          .value
-          .trim();
+        titleField
+          ? titleField.value.trim()
+          : "";
 
 
       if (!title) {
@@ -1469,27 +1612,27 @@ if (eventForm) {
           generateSlug(title),
 
         description:
-          document
-            .getElementById(
-              "description"
-            )
-            .value
-            .trim(),
+          descriptionField
+            ? descriptionField.value.trim()
+            : "",
 
         event_date:
-          document
-            .getElementById(
-              "event_date"
-            )
-            .value,
+          dateField
+            ? dateField.value
+            : "",
 
         location:
-          document
-            .getElementById(
-              "location"
-            )
-            .value
-            .trim(),
+          locationField
+            ? locationField.value.trim()
+            : "",
+
+        /*
+         * PRIMARY MEDIA DATA
+         *
+         * These arrays are what the backend
+         * should use to synchronize the
+         * event_media table.
+         */
 
         image_urls:
           imageUrls,
@@ -1498,7 +1641,11 @@ if (eventForm) {
           videoUrls,
 
         /*
-         * Backwards compatibility.
+         * LEGACY COMPATIBILITY
+         *
+         * Keep these temporarily because
+         * your events table still contains
+         * image_url and video_url.
          */
 
         image_url:
@@ -1508,11 +1655,9 @@ if (eventForm) {
           videoUrls[0] || "",
 
         status:
-          document
-            .getElementById(
-              "status"
-            )
-            .value,
+          statusField
+            ? statusField.value
+            : "draft",
       };
 
 
@@ -1520,12 +1665,10 @@ if (eventForm) {
          DISABLE BUTTON
       =================================== */
 
-      saveButton.disabled =
-        true;
-
-
-      const originalButtonText =
-        saveButton.textContent;
+      if (saveButton) {
+        saveButton.disabled =
+          true;
+      }
 
 
       try {
@@ -1534,10 +1677,14 @@ if (eventForm) {
            UPDATE
         ================================= */
 
-        if (editingEventId !== null) {
+        if (
+          editingEventId !== null
+        ) {
 
-          saveButton.textContent =
-            "Updating...";
+          if (saveButton) {
+            saveButton.textContent =
+              "Updating...";
+          }
 
 
           await window.api.updateEvent(
@@ -1549,9 +1696,8 @@ if (eventForm) {
           showMessage(
             "Event updated successfully."
           );
-
-
         }
+
 
         /* =================================
            CREATE
@@ -1559,8 +1705,10 @@ if (eventForm) {
 
         else {
 
-          saveButton.textContent =
-            "Creating...";
+          if (saveButton) {
+            saveButton.textContent =
+              "Creating...";
+          }
 
 
           await window.api.createEvent(
@@ -1596,15 +1744,30 @@ if (eventForm) {
 
       } finally {
 
-        saveButton.disabled =
-          false;
+        if (saveButton) {
 
-        if (
-          !editingEventId &&
-          saveButton
-        ) {
-          saveButton.textContent =
-            originalButtonText;
+          saveButton.disabled =
+            false;
+
+          /*
+           * resetForm() already sets this
+           * when successful. If there was
+           * an error, restore the appropriate
+           * button text.
+           */
+
+          if (
+            editingEventId !== null
+          ) {
+
+            saveButton.textContent =
+              "Update Event";
+
+          } else {
+
+            saveButton.textContent =
+              "Create Event";
+          }
         }
       }
 
@@ -1657,6 +1820,17 @@ if (logoutButton) {
     }
   );
 }
+
+
+/* =========================================
+   EXPOSE FUNCTIONS FOR HTML BUTTONS
+========================================= */
+
+window.startEdit =
+  startEdit;
+
+window.removeEvent =
+  removeEvent;
 
 
 /* =========================================

@@ -9,19 +9,29 @@ const {
   deleteEvent,
 } = require("../models/eventModel");
 
-// const { getEventMedia } = require("../models/eventMediaModel");
 const {
   getEventMedia,
-  createEventMedia,
+  replaceEventMedia,
 } = require("../models/eventMediaModel");
+
+
+// ============================================================
+// GET ALL EVENTS
+// ============================================================
 
 const getEvents = async (req, res) => {
   try {
+
     const events = await getAllEvents();
 
     res.json(events);
+
   } catch (error) {
-    console.error("🔴 Get events error:", error);
+
+    console.error(
+      "🔴 Get events error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to retrieve events",
@@ -29,24 +39,41 @@ const getEvents = async (req, res) => {
   }
 };
 
+
+// ============================================================
+// GET SINGLE EVENT
+// ============================================================
+
 const getSingleEvent = async (req, res) => {
   try {
-    const event = await getEventById(req.params.id);
+
+    const event = await getEventById(
+      req.params.id
+    );
 
     if (!event) {
+
       return res.status(404).json({
         message: "Event not found",
       });
+
     }
 
-    const media = await getEventMedia(req.params.id);
+    const media = await getEventMedia(
+      req.params.id
+    );
 
     res.json({
       ...event,
       media,
     });
+
   } catch (error) {
-    console.error("🔴 Get event error:", error);
+
+    console.error(
+      "🔴 Get event error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to retrieve event",
@@ -54,248 +81,798 @@ const getSingleEvent = async (req, res) => {
   }
 };
 
+
+// ============================================================
+// CREATE EVENT
+// ============================================================
+
 const createNewEvent = async (req, res) => {
+
   try {
+
     const {
       title,
       slug,
       description,
       event_date,
       location,
+      status,
+
+      image_urls = [],
+      video_urls = [],
+
+      // Backwards compatibility
       image_url,
       video_url,
-      status,
     } = req.body;
 
+
+    // --------------------------------------------------------
+    // VALIDATION
+    // --------------------------------------------------------
+
     if (!title || !slug || !event_date) {
+
       return res.status(400).json({
-        message: "Title, slug and event date are required",
+        message:
+          "Title, slug and event date are required",
       });
+
     }
 
+
+    // --------------------------------------------------------
+    // NORMALIZE IMAGE URLS
+    // --------------------------------------------------------
+
+    const imageUrls =
+      Array.isArray(image_urls)
+        ? image_urls.filter(Boolean)
+        : [];
+
+
+    // --------------------------------------------------------
+    // NORMALIZE VIDEO URLS
+    // --------------------------------------------------------
+
+    const videoUrls =
+      Array.isArray(video_urls)
+        ? video_urls.filter(Boolean)
+        : [];
+
+
+    // --------------------------------------------------------
+    // BACKWARDS COMPATIBILITY
+    // --------------------------------------------------------
+
+    if (
+      imageUrls.length === 0 &&
+      image_url
+    ) {
+
+      imageUrls.push(image_url);
+
+    }
+
+
+    if (
+      videoUrls.length === 0 &&
+      video_url
+    ) {
+
+      videoUrls.push(video_url);
+
+    }
+
+
+    // --------------------------------------------------------
+    // PRIMARY MEDIA
+    // --------------------------------------------------------
+
+    const primaryImageUrl =
+      imageUrls[0] || null;
+
+    const primaryVideoUrl =
+      videoUrls[0] || null;
+
+
+    // --------------------------------------------------------
+    // CREATE EVENT
+    // --------------------------------------------------------
+
     const event = await createEvent({
+
+      title,
+
+      slug,
+
+      description,
+
+      event_date,
+
+      location,
+
+      image_url:
+        primaryImageUrl,
+
+      video_url:
+        primaryVideoUrl,
+
+      status,
+
+    });
+
+
+    // --------------------------------------------------------
+    // SAVE MEDIA
+    // --------------------------------------------------------
+
+    const media =
+      await replaceEventMedia(
+        event.id,
+        imageUrls,
+        videoUrls
+      );
+
+
+    // --------------------------------------------------------
+    // RETURN
+    // --------------------------------------------------------
+
+    res.status(201).json({
+
+      message:
+        "Event created successfully",
+
+      event,
+
+      media,
+
+    });
+
+  } catch (error) {
+
+    console.error(
+      "🔴 Create event error:",
+      error
+    );
+
+
+    if (
+      error.code === "23505"
+    ) {
+
+      return res.status(409).json({
+        message:
+          "An event with this slug already exists.",
+      });
+
+    }
+
+
+    res.status(500).json({
+      message:
+        "Failed to create event",
+    });
+  }
+};
+
+
+// ============================================================
+// UPDATE EVENT
+// ============================================================
+
+const updateExistingEvent = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const eventId =
+      req.params.id;
+
+
+    // --------------------------------------------------------
+    // CHECK EVENT EXISTS
+    // --------------------------------------------------------
+
+    const existingEvent =
+      await getEventById(
+        eventId
+      );
+
+
+    if (!existingEvent) {
+
+      return res.status(404).json({
+        message:
+          "Event not found",
+      });
+
+    }
+
+
+    // --------------------------------------------------------
+    // REQUEST DATA
+    // --------------------------------------------------------
+
+    const {
       title,
       slug,
       description,
       event_date,
       location,
+      status,
+
+      image_urls = [],
+      video_urls = [],
+
+      // Backwards compatibility
       image_url,
       video_url,
-      status,
+    } = req.body;
+
+
+    // --------------------------------------------------------
+    // NORMALIZE IMAGE URLS
+    // --------------------------------------------------------
+
+    const imageUrls =
+      Array.isArray(image_urls)
+        ? image_urls.filter(Boolean)
+        : [];
+
+
+    // --------------------------------------------------------
+    // NORMALIZE VIDEO URLS
+    // --------------------------------------------------------
+
+    const videoUrls =
+      Array.isArray(video_urls)
+        ? video_urls.filter(Boolean)
+        : [];
+
+
+    // --------------------------------------------------------
+    // BACKWARDS COMPATIBILITY
+    // --------------------------------------------------------
+
+    if (
+      imageUrls.length === 0 &&
+      image_url
+    ) {
+
+      imageUrls.push(image_url);
+
+    }
+
+
+    if (
+      videoUrls.length === 0 &&
+      video_url
+    ) {
+
+      videoUrls.push(video_url);
+
+    }
+
+
+    // --------------------------------------------------------
+    // PRIMARY MEDIA
+    // --------------------------------------------------------
+
+    const primaryImageUrl =
+      imageUrls[0] || null;
+
+    const primaryVideoUrl =
+      videoUrls[0] || null;
+
+
+    // --------------------------------------------------------
+    // UPDATE EVENT
+    // --------------------------------------------------------
+
+    const updatedEvent =
+      await updateEvent(
+        eventId,
+        {
+
+          title,
+
+          slug,
+
+          description,
+
+          event_date,
+
+          location,
+
+          status,
+
+          image_url:
+            primaryImageUrl,
+
+          video_url:
+            primaryVideoUrl,
+
+        }
+      );
+
+
+    // --------------------------------------------------------
+    // REPLACE ALL EVENT MEDIA
+    // --------------------------------------------------------
+    //
+    // This removes the old event_media rows and inserts
+    // exactly the media currently attached to the event.
+    //
+    // Supabase Storage files are NOT deleted.
+    //
+    // --------------------------------------------------------
+
+    const media =
+      await replaceEventMedia(
+        eventId,
+        imageUrls,
+        videoUrls
+      );
+
+
+    // --------------------------------------------------------
+    // RETURN UPDATED EVENT
+    // --------------------------------------------------------
+
+    res.json({
+
+      message:
+        "Event updated successfully",
+
+      event:
+        updatedEvent,
+
+      media,
+
     });
 
-    // Add uploaded media to event_media table
+  } catch (error) {
 
-    if (image_url) {
-      await createEventMedia({
-        event_id: event.id,
-        media_type: "image",
-        media_url: image_url,
-        sort_order: 0,
+    console.error(
+      "🔴 Update event error:",
+      error
+    );
+
+
+    if (
+      error.code === "23505"
+    ) {
+
+      return res.status(409).json({
+        message:
+          "An event with this slug already exists.",
       });
+
     }
 
-    if (video_url) {
-      await createEventMedia({
-        event_id: event.id,
-        media_type: "video",
-        media_url: video_url,
-        sort_order: 1,
+
+    res.status(500).json({
+      message:
+        "Failed to update event",
+    });
+  }
+};
+
+
+// ============================================================
+// DELETE EVENT
+// ============================================================
+
+const deleteExistingEvent = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const eventId =
+      req.params.id;
+
+
+    const event =
+      await deleteEvent(
+        eventId
+      );
+
+
+    if (!event) {
+
+      return res.status(404).json({
+        message:
+          "Event not found",
       });
+
     }
+
+
+    // --------------------------------------------------------
+    // event_media records are automatically deleted because
+    // event_media.event_id has ON DELETE CASCADE.
+    //
+    // Supabase Storage files are intentionally NOT deleted.
+    // --------------------------------------------------------
+
+    res.json({
+
+      message:
+        "Event deleted successfully",
+
+      event,
+
+    });
+
+  } catch (error) {
+
+    console.error(
+      "🔴 Delete event error:",
+      error
+    );
+
+    res.status(500).json({
+      message:
+        "Failed to delete event",
+    });
+  }
+};
+
+
+// ============================================================
+// UPLOAD EVENT IMAGE
+// ============================================================
+
+const uploadEventImage = async (
+  req,
+  res
+) => {
+
+  try {
+
+    if (!req.file) {
+
+      return res.status(400).json({
+        message:
+          "No image uploaded",
+      });
+
+    }
+
+
+    // --------------------------------------------------------
+    // VALIDATE IMAGE
+    // --------------------------------------------------------
+
+    if (
+      !req.file.mimetype ||
+      !req.file.mimetype.startsWith(
+        "image/"
+      )
+    ) {
+
+      return res.status(400).json({
+        message:
+          "Only image files are allowed",
+      });
+
+    }
+
+
+    // --------------------------------------------------------
+    // FILE EXTENSION
+    // --------------------------------------------------------
+
+    const fileExt =
+      path
+        .extname(
+          req.file.originalname
+        )
+        .toLowerCase();
+
+
+    // --------------------------------------------------------
+    // UNIQUE FILE NAME
+    // --------------------------------------------------------
+
+    const fileName =
+      `${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 10)}${fileExt}`;
+
+
+    const filePath =
+      `events/images/${fileName}`;
+
+
+    // --------------------------------------------------------
+    // UPLOAD TO SUPABASE
+    // --------------------------------------------------------
+
+    const {
+      error: uploadError,
+    } =
+      await supabase.storage
+        .from("akseventsug")
+        .upload(
+          filePath,
+          req.file.buffer,
+          {
+            contentType:
+              req.file.mimetype,
+
+            upsert:
+              false,
+          }
+        );
+
+
+    if (uploadError) {
+
+      console.error(
+        "🔴 Supabase image upload error:",
+        uploadError
+      );
+
+      return res.status(500).json({
+        message:
+          "Failed to upload image",
+      });
+
+    }
+
+
+    // --------------------------------------------------------
+    // GET PUBLIC URL
+    // --------------------------------------------------------
+
+    const {
+      data
+    } =
+      supabase.storage
+        .from("akseventsug")
+        .getPublicUrl(
+          filePath
+        );
+
+
+    const imageUrl =
+      data?.publicUrl;
+
+
+    if (!imageUrl) {
+
+      return res.status(500).json({
+        message:
+          "Image uploaded but no public URL was returned",
+      });
+
+    }
+
+
+    console.log(
+      "🟢 Image uploaded successfully:",
+      imageUrl
+    );
+
 
     res.status(201).json({
-      message: "Event created successfully",
-      event,
+
+      message:
+        "Image uploaded successfully",
+
+      image_url:
+        imageUrl,
+
     });
+
   } catch (error) {
-    console.error("🔴 Create event error:", error);
+
+    console.error(
+      "🔴 Image upload error:",
+      error
+    );
 
     res.status(500).json({
-      message: "Failed to create event",
+      message:
+        "Server error during image upload",
     });
   }
 };
 
-const updateExistingEvent = async (req, res) => {
+
+// ============================================================
+// UPLOAD EVENT VIDEO
+// ============================================================
+
+const uploadEventVideo = async (
+  req,
+  res
+) => {
+
   try {
-    const event = await getEventById(req.params.id);
 
-    if (!event) {
-      return res.status(404).json({
-        message: "Event not found",
-      });
-    }
-
-    const updatedEvent = await updateEvent(req.params.id, req.body);
-
-    const { image_url, video_url } = req.body;
-
-    if (image_url) {
-      await createEventMedia({
-        event_id: req.params.id,
-        media_type: "image",
-        media_url: image_url,
-        sort_order: 0,
-      });
-    }
-
-    if (video_url) {
-      await createEventMedia({
-        event_id: req.params.id,
-        media_type: "video",
-        media_url: video_url,
-        sort_order: 1,
-      });
-    }
-
-    res.json({
-      message: "Event updated successfully",
-      event: updatedEvent,
-    });
-  } catch (error) {
-    console.error("🔴 Update event error:", error);
-
-    res.status(500).json({
-      message: "Failed to update event",
-    });
-  }
-};
-
-const deleteExistingEvent = async (req, res) => {
-  try {
-    const event = await deleteEvent(req.params.id);
-
-    if (!event) {
-      return res.status(404).json({
-        message: "Event not found",
-      });
-    }
-
-    res.json({
-      message: "Event deleted successfully",
-      event,
-    });
-  } catch (error) {
-    console.error("🔴 Delete event error:", error);
-
-    res.status(500).json({
-      message: "Event deleted successfully",
-      event,
-    });
-  }
-};
-
-const uploadEventImage = async (req, res) => {
-  try {
     if (!req.file) {
+
       return res.status(400).json({
-        message: "No image uploaded",
+        message:
+          "No video uploaded",
       });
+
     }
 
-    const fileExt = path.extname(req.file.originalname);
 
-    const fileName = `${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2, 10)}${fileExt}`;
+    // --------------------------------------------------------
+    // VALIDATE VIDEO
+    // --------------------------------------------------------
 
-    const filePath = `events/${fileName}`;
+    const allowedVideoTypes = [
+      "video/mp4",
+      "video/webm",
+      "video/quicktime",
+    ];
 
-    const { error: uploadError } = await supabase.storage
-      .from("akseventsug")
-      .upload(filePath, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false,
+
+    if (
+      !allowedVideoTypes.includes(
+        req.file.mimetype
+      )
+    ) {
+
+      return res.status(400).json({
+        message:
+          "Invalid video format. Please upload MP4, WebM or MOV.",
       });
+
+    }
+
+
+    // --------------------------------------------------------
+    // FILE EXTENSION
+    // --------------------------------------------------------
+
+    const fileExt =
+      path
+        .extname(
+          req.file.originalname
+        )
+        .toLowerCase();
+
+
+    // --------------------------------------------------------
+    // UNIQUE FILE NAME
+    // --------------------------------------------------------
+
+    const fileName =
+      `${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 10)}${fileExt}`;
+
+
+    const filePath =
+      `events/videos/${fileName}`;
+
+
+    // --------------------------------------------------------
+    // UPLOAD TO SUPABASE
+    // --------------------------------------------------------
+
+    const {
+      error: uploadError
+    } =
+      await supabase.storage
+        .from("akseventsug")
+        .upload(
+          filePath,
+          req.file.buffer,
+          {
+            contentType:
+              req.file.mimetype,
+
+            upsert:
+              false,
+          }
+        );
+
 
     if (uploadError) {
-      console.error("🔴 Supabase image upload error:", uploadError);
+
+      console.error(
+        "🔴 Supabase video upload error:",
+        uploadError
+      );
 
       return res.status(500).json({
-        message: "Failed to upload image",
+        message:
+          "Failed to upload video",
       });
+
     }
 
-    const { data } = supabase.storage
-      .from("akseventsug")
-      .getPublicUrl(filePath);
 
-    res.json({
-      message: "Image uploaded successfully",
-      image_url: data.publicUrl,
+    // --------------------------------------------------------
+    // GET PUBLIC URL
+    // --------------------------------------------------------
+
+    const {
+      data
+    } =
+      supabase.storage
+        .from("akseventsug")
+        .getPublicUrl(
+          filePath
+        );
+
+
+    const videoUrl =
+      data?.publicUrl;
+
+
+    if (!videoUrl) {
+
+      return res.status(500).json({
+        message:
+          "Video uploaded but no public URL was returned",
+      });
+
+    }
+
+
+    console.log(
+      "🟢 Video uploaded successfully:",
+      videoUrl
+    );
+
+
+    res.status(201).json({
+
+      message:
+        "Video uploaded successfully",
+
+      video_url:
+        videoUrl,
+
     });
+
   } catch (error) {
-    console.error("🔴 Image upload error:", error);
+
+    console.error(
+      "🔴 Video upload error:",
+      error
+    );
 
     res.status(500).json({
-      message: "Server error during image upload",
+      message:
+        "Server error during video upload",
     });
   }
 };
 
-const uploadEventVideo = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        message: "No video uploaded",
-      });
-    }
 
-    const allowedVideoTypes = ["video/mp4", "video/webm", "video/quicktime"];
-
-    if (!allowedVideoTypes.includes(req.file.mimetype)) {
-      return res.status(400).json({
-        message: "Invalid video format. Please upload MP4, WebM or MOV.",
-      });
-    }
-
-    const fileExt = path.extname(req.file.originalname);
-
-    const fileName = `${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2, 10)}${fileExt}`;
-
-    const filePath = `events/videos/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("akseventsug")
-      .upload(filePath, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("🔴 Supabase video upload error:", uploadError);
-
-      return res.status(500).json({
-        message: "Failed to upload video",
-      });
-    }
-
-    const { data } = supabase.storage
-      .from("akseventsug")
-      .getPublicUrl(filePath);
-
-    res.json({
-      message: "Video uploaded successfully",
-      video_url: data.publicUrl,
-    });
-  } catch (error) {
-    console.error("🔴 Video upload error:", error);
-
-    res.status(500).json({
-      message: "Server error during video upload",
-    });
-  }
-};
+// ============================================================
+// EXPORTS
+// ============================================================
 
 module.exports = {
+
   getEvents,
+
   getSingleEvent,
+
   createNewEvent,
+
   updateExistingEvent,
+
   deleteExistingEvent,
+
   uploadEventImage,
+
   uploadEventVideo,
+
 };

@@ -1,5 +1,4 @@
 const express = require("express");
-
 const multer = require("multer");
 
 const {
@@ -8,24 +7,24 @@ const {
   deleteMedia,
 } = require("../controllers/eventMediaController");
 
-const protect =
-  require("../middleware/authMiddleware");
+const protect = require("../middleware/authMiddleware");
 
 
-const upload =
-  multer({
-    storage:
-      multer.memoryStorage(),
-  });
+const router = express.Router();
 
 
-const router =
-  express.Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+
+  limits: {
+    fileSize: 50 * 1024 * 1024,
+  },
+});
 
 
-// =========================================
+// ============================================================
 // GET MEDIA FOR EVENT
-// =========================================
+// ============================================================
 
 router.get(
   "/:eventId",
@@ -33,9 +32,9 @@ router.get(
 );
 
 
-// =========================================
+// ============================================================
 // UPLOAD MEDIA
-// =========================================
+// ============================================================
 
 router.post(
   "/:eventId/upload",
@@ -45,9 +44,9 @@ router.post(
 );
 
 
-// =========================================
+// ============================================================
 // DELETE MEDIA
-// =========================================
+// ============================================================
 
 router.delete(
   "/media/:mediaId",
