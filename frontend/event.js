@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setCurrentYear();
 
+  initializeLightbox();
+
   loadEvent();
 
 });
@@ -26,23 +28,39 @@ const initializeNavigation = () => {
   const menu =
     document.getElementById("mobileNav");
 
+
   if (!button || !menu) {
     return;
   }
 
+
   button.addEventListener("click", () => {
+
     menu.classList.toggle("open");
+
   });
+
 
   menu.querySelectorAll("a").forEach((link) => {
 
     link.addEventListener("click", () => {
+
       menu.classList.remove("open");
+
     });
 
   });
 
 };
+
+
+/* =========================================
+   GLOBAL MEDIA STATE
+========================================= */
+
+let currentMedia = [];
+
+let currentMediaIndex = 0;
 
 
 /* =========================================
@@ -54,17 +72,21 @@ const loadEvent = async () => {
   const page =
     document.getElementById("eventPage");
 
+
   if (!page) {
     return;
   }
+
 
   const params =
     new URLSearchParams(
       window.location.search
     );
 
+
   const eventId =
     params.get("id");
+
 
   if (!eventId) {
 
@@ -77,6 +99,7 @@ const loadEvent = async () => {
     return;
   }
 
+
   try {
 
     const response =
@@ -84,8 +107,10 @@ const loadEvent = async () => {
         `${API_URL}/events/${encodeURIComponent(eventId)}`
       );
 
+
     const event =
       await response.json();
+
 
     if (!response.ok) {
 
@@ -95,6 +120,7 @@ const loadEvent = async () => {
       );
 
     }
+
 
     if (event.status !== "published") {
 
@@ -107,10 +133,16 @@ const loadEvent = async () => {
       return;
     }
 
-    renderEvent(page, event);
+
+    renderEvent(
+      page,
+      event
+    );
+
 
     document.title =
       `${event.title} — Sound Events`;
+
 
   } catch (error) {
 
@@ -118,6 +150,7 @@ const loadEvent = async () => {
       "Failed to load event:",
       error
     );
+
 
     showEventError(
       page,
@@ -145,17 +178,6 @@ const renderEvent = (
     );
 
 
-  /*
-   * ========================================
-   * MEDIA
-   * ========================================
-   *
-   * event.media comes from:
-   *
-   * GET /api/events/:id
-   *
-   */
-
   const media =
     Array.isArray(event.media)
       ? event.media
@@ -169,19 +191,6 @@ const renderEvent = (
     );
 
 
-  const videos =
-    media.filter(
-      item =>
-        item.media_type === "video"
-    );
-
-
-  /*
-   * ========================================
-   * FALLBACK MAIN IMAGE
-   * ========================================
-   */
-
   const heroImage =
     event.image_url ||
     (
@@ -192,9 +201,15 @@ const renderEvent = (
 
 
   /*
-   * ========================================
-   * MEDIA GALLERY
-   * ========================================
+   * Store media globally for lightbox
+   */
+
+  currentMedia =
+    media;
+
+
+  /*
+   * Create gallery
    */
 
   const mediaGallery =
@@ -288,9 +303,7 @@ const renderEvent = (
         <div class="event-detail-grid">
 
 
-          <!-- =================================
-               MAIN CONTENT
-          ================================== -->
+          <!-- MAIN CONTENT -->
 
           <div class="event-detail-main">
 
@@ -354,9 +367,7 @@ const renderEvent = (
 
 
 
-          <!-- =================================
-               SIDEBAR
-          ================================== -->
+          <!-- SIDEBAR -->
 
           <aside class="event-detail-sidebar">
 
@@ -407,7 +418,11 @@ const renderEvent = (
                     <div class="sidebar-value">
 
                       ${media.length}
-                      ${media.length === 1 ? "moment" : "moments"}
+                      ${
+                        media.length === 1
+                          ? "moment"
+                          : "moments"
+                      }
 
                     </div>
 
@@ -498,6 +513,13 @@ const renderEvent = (
 
   `;
 
+
+  /*
+   * Activate gallery clicks
+   */
+
+  initializeGalleryClicks();
+
 };
 
 
@@ -521,8 +543,7 @@ const createMediaGallery = (media) => {
           (item, index) =>
             createMediaCard(
               item,
-              index,
-              media.length
+              index
             )
         )
         .join("")}
@@ -540,8 +561,7 @@ const createMediaGallery = (media) => {
 
 const createMediaCard = (
   item,
-  index,
-  total
+  index
 ) => {
 
   const isVideo =
@@ -554,13 +574,6 @@ const createMediaCard = (
     );
 
 
-  /*
-   * Make the first item larger.
-   *
-   * This gives the gallery
-   * an editorial / magazine feel.
-   */
-
   const sizeClass =
     index === 0
       ? "media-card-large"
@@ -568,6 +581,18 @@ const createMediaCard = (
 
 
   if (isVideo) {
+
+    /*
+     * Use thumbnail if one exists.
+     * Otherwise let the browser generate
+     * the video preview.
+     */
+
+    const poster =
+      item.thumbnail_url
+        ? `poster="${escapeHtml(item.thumbnail_url)}"`
+        : "";
+
 
     return `
 
@@ -577,10 +602,15 @@ const createMediaCard = (
           ${sizeClass}
           event-media-video
         "
+        data-media-index="${index}"
+        tabindex="0"
+        role="button"
+        aria-label="Play video"
       >
 
         <video
           class="event-media-video-element"
+          ${poster}
           muted
           playsinline
           preload="metadata"
@@ -588,7 +618,6 @@ const createMediaCard = (
 
           <source
             src="${mediaUrl}"
-            type="video/mp4"
           >
 
         </video>
@@ -597,7 +626,10 @@ const createMediaCard = (
         <div class="event-media-gradient"></div>
 
 
-        <div class="event-media-video-icon">
+        <div
+          class="event-media-video-icon"
+          aria-hidden="true"
+        >
           ▶
         </div>
 
@@ -626,6 +658,10 @@ const createMediaCard = (
         ${sizeClass}
         event-media-image
       "
+      data-media-index="${index}"
+      tabindex="0"
+      role="button"
+      aria-label="View image"
     >
 
       <img
@@ -650,6 +686,474 @@ const createMediaCard = (
     </article>
 
   `;
+
+};
+
+
+/* =========================================
+   GALLERY CLICK EVENTS
+========================================= */
+
+const initializeGalleryClicks = () => {
+
+  const cards =
+    document.querySelectorAll(
+      ".event-media-card"
+    );
+
+
+  cards.forEach((card) => {
+
+    const index =
+      Number(
+        card.dataset.mediaIndex
+      );
+
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        openLightbox(index);
+
+      }
+    );
+
+
+    card.addEventListener(
+      "keydown",
+      (event) => {
+
+        if (
+          event.key === "Enter" ||
+          event.key === " "
+        ) {
+
+          event.preventDefault();
+
+          openLightbox(index);
+
+        }
+
+      }
+    );
+
+  });
+
+};
+
+
+/* =========================================
+   LIGHTBOX INITIALIZATION
+========================================= */
+
+const initializeLightbox = () => {
+
+  const lightbox =
+    document.getElementById(
+      "mediaLightbox"
+    );
+
+
+  const closeButton =
+    document.getElementById(
+      "lightboxClose"
+    );
+
+
+  const previousButton =
+    document.getElementById(
+      "lightboxPrev"
+    );
+
+
+  const nextButton =
+    document.getElementById(
+      "lightboxNext"
+    );
+
+
+  if (!lightbox) {
+    return;
+  }
+
+
+  if (closeButton) {
+
+    closeButton.addEventListener(
+      "click",
+      closeLightbox
+    );
+
+  }
+
+
+  if (previousButton) {
+
+    previousButton.addEventListener(
+      "click",
+      () => {
+
+        showPreviousMedia();
+
+      }
+    );
+
+  }
+
+
+  if (nextButton) {
+
+    nextButton.addEventListener(
+      "click",
+      () => {
+
+        showNextMedia();
+
+      }
+    );
+
+  }
+
+
+  /*
+   * Click outside content closes lightbox
+   */
+
+  lightbox.addEventListener(
+    "click",
+    (event) => {
+
+      if (
+        event.target === lightbox
+      ) {
+
+        closeLightbox();
+
+      }
+
+    }
+  );
+
+
+  /*
+   * Keyboard controls
+   */
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+
+      if (
+        !lightbox.classList.contains("open")
+      ) {
+        return;
+      }
+
+
+      if (event.key === "Escape") {
+
+        closeLightbox();
+
+      }
+
+
+      if (event.key === "ArrowLeft") {
+
+        showPreviousMedia();
+
+      }
+
+
+      if (event.key === "ArrowRight") {
+
+        showNextMedia();
+
+      }
+
+    }
+  );
+
+};
+
+
+/* =========================================
+   OPEN LIGHTBOX
+========================================= */
+
+const openLightbox = (index) => {
+
+  if (
+    !currentMedia.length
+  ) {
+    return;
+  }
+
+
+  currentMediaIndex =
+    index;
+
+
+  const lightbox =
+    document.getElementById(
+      "mediaLightbox"
+    );
+
+
+  if (!lightbox) {
+    return;
+  }
+
+
+  lightbox.classList.add("open");
+
+  lightbox.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+
+  document.body.style.overflow =
+    "hidden";
+
+
+  renderLightboxMedia();
+
+};
+
+
+/* =========================================
+   CLOSE LIGHTBOX
+========================================= */
+
+const closeLightbox = () => {
+
+  const lightbox =
+    document.getElementById(
+      "mediaLightbox"
+    );
+
+
+  const content =
+    document.getElementById(
+      "lightboxContent"
+    );
+
+
+  if (!lightbox) {
+    return;
+  }
+
+
+  /*
+   * Stop video completely
+   */
+
+  if (content) {
+
+    const video =
+      content.querySelector("video");
+
+
+    if (video) {
+
+      video.pause();
+
+      video.currentTime = 0;
+
+    }
+
+  }
+
+
+  lightbox.classList.remove(
+    "open"
+  );
+
+
+  lightbox.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+
+  document.body.style.overflow =
+    "";
+
+};
+
+
+/* =========================================
+   RENDER LIGHTBOX MEDIA
+========================================= */
+
+const renderLightboxMedia = () => {
+
+  const content =
+    document.getElementById(
+      "lightboxContent"
+    );
+
+
+  const counter =
+    document.getElementById(
+      "lightboxCounter"
+    );
+
+
+  if (!content) {
+    return;
+  }
+
+
+  const item =
+    currentMedia[
+      currentMediaIndex
+    ];
+
+
+  if (!item) {
+    return;
+  }
+
+
+  const isVideo =
+    item.media_type === "video";
+
+
+  const url =
+    escapeHtml(
+      item.media_url
+    );
+
+
+  if (isVideo) {
+
+    const poster =
+      item.thumbnail_url
+        ? `poster="${escapeHtml(item.thumbnail_url)}"`
+        : "";
+
+
+    content.innerHTML = `
+
+      <video
+        class="lightbox-video"
+        ${poster}
+        controls
+        playsinline
+        preload="metadata"
+      >
+
+        <source
+          src="${url}"
+        >
+
+        Your browser does not support
+        HTML5 video.
+
+      </video>
+
+    `;
+
+
+    const video =
+      content.querySelector(
+        "video"
+      );
+
+
+    /*
+     * Start playback after opening.
+     * If browser blocks autoplay with sound,
+     * the controls remain available.
+     */
+
+    if (video) {
+
+      video.play().catch(() => {
+        // Browser blocked autoplay.
+        // User can press play manually.
+      });
+
+    }
+
+  } else {
+
+    content.innerHTML = `
+
+      <img
+        src="${url}"
+        alt="Event moment"
+      >
+
+    `;
+
+  }
+
+
+  if (counter) {
+
+    counter.textContent =
+      `${currentMediaIndex + 1} / ${currentMedia.length}`;
+
+  }
+
+};
+
+
+/* =========================================
+   PREVIOUS MEDIA
+========================================= */
+
+const showPreviousMedia = () => {
+
+  if (!currentMedia.length) {
+    return;
+  }
+
+
+  currentMediaIndex--;
+
+  if (
+    currentMediaIndex < 0
+  ) {
+
+    currentMediaIndex =
+      currentMedia.length - 1;
+
+  }
+
+
+  renderLightboxMedia();
+
+};
+
+
+/* =========================================
+   NEXT MEDIA
+========================================= */
+
+const showNextMedia = () => {
+
+  if (!currentMedia.length) {
+    return;
+  }
+
+
+  currentMediaIndex++;
+
+  if (
+    currentMediaIndex >=
+    currentMedia.length
+  ) {
+
+    currentMediaIndex = 0;
+
+  }
+
+
+  renderLightboxMedia();
 
 };
 
@@ -712,8 +1216,21 @@ const formatEventDate = (
     return "Date TBA";
   }
 
+
   const date =
     new Date(dateString);
+
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+
+    return "Date TBA";
+
+  }
+
 
   return date.toLocaleDateString(
     "en-UG",
@@ -738,8 +1255,11 @@ const escapeHtml = (value) => {
     value === null ||
     value === undefined
   ) {
+
     return "";
+
   }
+
 
   return String(value)
 
@@ -781,6 +1301,7 @@ const setCurrentYear = () => {
     document.getElementById(
       "currentYear"
     );
+
 
   if (element) {
 

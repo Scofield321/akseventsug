@@ -261,36 +261,18 @@ const createEventCard = (event) => {
           <strong>
             SOUND EVENTS
           </strong>
-
         </div>
-
       </div>
-
     `;
-
   }
-
-
   return `
-
     <article class="event-card">
-
-
       ${media}
-
-
       <div class="event-info">
-
-
         <div class="event-date">
-
           ${escapeHtml(formattedDate)}
-
         </div>
-
-
         <h3 class="event-title">
-
           ${escapeHtml(event.title)}
 
         </h3>
@@ -311,35 +293,24 @@ const createEventCard = (event) => {
             : ""
         }
 
-
         ${
           event.description
             ? `
-
               <p class="event-description">
 
                 ${escapeHtml(event.description)}
 
               </p>
-
             `
             : ""
         }
-
-
         <a
           href="event.html?id=${encodeURIComponent(event.id)}"
           class="event-link"
         >
-
           Discover Experience →
-
         </a>
-
-
       </div>
-
-
     </article>
 
   `;
