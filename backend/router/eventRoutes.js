@@ -87,7 +87,6 @@ router.post(
   uploadEventImage
 );
 
-
 // Upload video
 router.post(
   "/upload-video",
@@ -95,6 +94,4 @@ router.post(
   upload.single("video"),
   uploadEventVideo
 );
-
-
 module.exports = router;

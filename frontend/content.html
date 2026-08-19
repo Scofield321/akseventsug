@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="Explore moments captured at AKS Events."
+    />
+
+    <title>Moments — AKS Events</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="stylesheet" href="responsive.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* =====================================================
+       MOMENTS HERO
+    ===================================================== */
+
+      .moments-hero {
+        position: relative;
+
+        min-height: 78vh;
+
+        display: flex;
+
+        align-items: flex-end;
+
+        overflow: hidden;
+
+        padding: 150px 0 90px;
+
+        background:
+          radial-gradient(
+            circle at 75% 30%,
+            rgba(124, 58, 237, 0.35),
+            transparent 35%
+          ),
+          radial-gradient(
+            circle at 85% 75%,
+            rgba(236, 72, 153, 0.22),
+            transparent 30%
+          ),
+          #09090b;
+      }
+
+      .moments-hero-content {
+        position: relative;
+
+        z-index: 3;
+
+        width: 100%;
+      }
+
+      .moments-hero-label {
+        color: var(--purple-light);
+
+        font-size: 11px;
+
+        font-weight: 800;
+
+        letter-spacing: 3px;
+
+        text-transform: uppercase;
+      }
+
+      .moments-hero-title {
+        max-width: 1000px;
+
+        margin-top: 20px;
+
+        font-size: clamp(55px, 10vw, 125px);
+
+        line-height: 0.88;
+
+        letter-spacing: -7px;
+
+        text-transform: uppercase;
+      }
+
+      .moments-hero-title span {
+        display: block;
+
+        color: var(--purple-light);
+      }
+
+      .moments-hero-description {
+        max-width: 620px;
+
+        margin-top: 30px;
+
+        color: rgba(255, 255, 255, 0.68);
+
+        font-size: 17px;
+
+        line-height: 1.8;
+      }
+
+      /* =====================================================
+   MOMENTS HERO STATS
+===================================================== */
+
+      .moments-hero-stats {
+        display: flex;
+
+        align-items: center;
+
+        gap: 45px;
+
+        margin-top: 45px;
+
+        padding-top: 25px;
+
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+        width: fit-content;
+      }
+
+      .moments-stat {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 5px;
+      }
+
+      .moments-stat strong {
+        font-size: 26px;
+
+        font-weight: 800;
+
+        line-height: 1;
+
+        letter-spacing: -1px;
+      }
+
+      .moments-stat span {
+        color: rgba(255, 255, 255, 0.45);
+
+        font-size: 9px;
+
+        font-weight: 800;
+
+        letter-spacing: 2px;
+      }
+
+      /* =====================================================
+       MOMENTS SECTION
+    ===================================================== */
+
+      .moments-section {
+        padding: 110px 0 130px;
+      }
+
+      .moments-heading {
+        display: flex;
+
+        align-items: flex-end;
+
+        justify-content: space-between;
+
+        gap: 30px;
+
+        margin-bottom: 45px;
+      }
+
+      .moments-heading h2 {
+        margin-top: 10px;
+
+        font-size: clamp(45px, 6vw, 75px);
+
+        line-height: 0.9;
+
+        letter-spacing: -5px;
+
+        text-transform: uppercase;
+      }
+
+      .moments-heading p {
+        max-width: 400px;
+
+        color: var(--gray);
+
+        font-size: 14px;
+
+        line-height: 1.7;
+      }
+
+      /* =====================================================
+       FILTERS
+    ===================================================== */
+
+      .moments-filters {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 10px;
+
+        margin-bottom: 40px;
+      }
+
+      .moments-filter {
+        border: 1px solid var(--border);
+
+        border-radius: 100px;
+
+        padding: 10px 17px;
+
+        background: transparent;
+
+        color: var(--gray);
+
+        font-family: inherit;
+
+        font-size: 11px;
+
+        font-weight: 700;
+
+        letter-spacing: 1px;
+
+        text-transform: uppercase;
+
+        cursor: pointer;
+
+        transition:
+          background 0.25s ease,
+          color 0.25s ease,
+          border-color 0.25s ease;
+      }
+
+      .moments-filter:hover {
+        border-color: rgba(124, 58, 237, 0.7);
+
+        color: white;
+      }
+
+      .moments-filter.active {
+        background: linear-gradient(135deg, var(--purple), var(--pink));
+
+        border-color: transparent;
+
+        color: white;
+      }
+
+      /* =====================================================
+       GALLERY
+    ===================================================== */
+
+      .moments-gallery {
+        display: grid;
+
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+
+        grid-auto-rows: 220px;
+
+        gap: 14px;
+      }
+
+      /* =====================================================
+       MOMENT CARD
+    ===================================================== */
+
+      .moment-card {
+        position: relative;
+
+        overflow: hidden;
+
+        min-width: 0;
+
+        border-radius: 16px;
+
+        border: 1px solid var(--border);
+
+        background: #050506;
+
+        cursor: pointer;
+
+        isolation: isolate;
+
+        transition:
+          transform 0.4s ease,
+          border-color 0.4s ease,
+          box-shadow 0.4s ease;
+      }
+
+      .moment-card-large {
+        grid-column: span 2;
+
+        grid-row: span 2;
+      }
+
+      .moment-card:hover {
+        transform: translateY(-5px);
+
+        border-color: rgba(255, 255, 255, 0.2);
+
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+      }
+
+      .moment-card img,
+      .moment-card video {
+        width: 100%;
+
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+
+        transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+
+      .moment-card:hover img,
+      .moment-card:hover video {
+        transform: scale(1.06);
+      }
+
+      /* =====================================================
+       CARD GRADIENT
+    ===================================================== */
+
+      .moment-gradient {
+        position: absolute;
+
+        inset: 0;
+
+        z-index: 2;
+
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.02),
+          transparent 45%,
+          rgba(0, 0, 0, 0.75)
+        );
+
+        pointer-events: none;
+      }
+
+      /* =====================================================
+       VIDEO PLAY
+    ===================================================== */
+
+      .moment-play {
+        position: absolute;
+
+        top: 50%;
+
+        left: 50%;
+
+        z-index: 4;
+
+        width: 65px;
+
+        height: 65px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        transform: translate(-50%, -50%);
+
+        border: 1px solid rgba(255, 255, 255, 0.45);
+
+        border-radius: 50%;
+
+        background: rgba(0, 0, 0, 0.45);
+
+        backdrop-filter: blur(10px);
+
+        color: white;
+
+        font-size: 18px;
+
+        padding-left: 3px;
+
+        transition:
+          transform 0.3s ease,
+          background 0.3s ease;
+      }
+
+      .moment-card:hover .moment-play {
+        transform: translate(-50%, -50%) scale(1.1);
+
+        background: rgba(124, 58, 237, 0.75);
+      }
+
+      /* =====================================================
+       CARD INFORMATION
+    ===================================================== */
+
+      .moment-event-name {
+        position: absolute;
+
+        left: 18px;
+
+        bottom: 38px;
+
+        z-index: 5;
+
+        max-width: calc(100% - 36px);
+
+        color: white;
+
+        font-size: 13px;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+      }
+
+      .moment-type {
+        position: absolute;
+
+        left: 18px;
+
+        bottom: 16px;
+
+        z-index: 5;
+
+        color: rgba(255, 255, 255, 0.65);
+
+        font-size: 9px;
+
+        font-weight: 800;
+
+        letter-spacing: 2px;
+      }
+
+      .moment-number {
+        position: absolute;
+
+        top: 16px;
+
+        right: 16px;
+
+        z-index: 5;
+
+        color: white;
+
+        font-size: 10px;
+
+        font-weight: 700;
+
+        letter-spacing: 1px;
+
+        opacity: 0.8;
+      }
+
+      /* =====================================================
+       LOADING
+    ===================================================== */
+
+      .moments-loading {
+        min-height: 350px;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        justify-content: center;
+
+        color: var(--gray);
+
+        grid-column: 1 / -1;
+      }
+
+      .moments-loading .loading-spinner {
+        margin-bottom: 20px;
+      }
+
+      /* =====================================================
+       EMPTY
+    ===================================================== */
+
+      .moments-empty {
+        grid-column: 1 / -1;
+
+        min-height: 350px;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        justify-content: center;
+
+        text-align: center;
+
+        border: 1px solid var(--border);
+
+        border-radius: 18px;
+
+        background: #111114;
+      }
+
+      .moments-empty strong {
+        font-size: 24px;
+
+        margin-bottom: 10px;
+      }
+
+      .moments-empty p {
+        max-width: 400px;
+
+        color: var(--gray);
+
+        line-height: 1.7;
+      }
+
+      /* =====================================================
+       LIGHTBOX
+    ===================================================== */
+
+      .moments-lightbox {
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 9999;
+
+        display: none;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: 30px;
+
+        background: rgba(4, 4, 6, 0.97);
+
+        backdrop-filter: blur(20px);
+      }
+
+      .moments-lightbox.open {
+        display: flex;
+      }
+
+      .moments-lightbox-content {
+        position: relative;
+
+        width: min(1200px, 90vw);
+
+        height: min(82vh, 850px);
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+      }
+
+      .moments-lightbox-content img,
+      .moments-lightbox-content video {
+        max-width: 100%;
+
+        max-height: 100%;
+
+        border-radius: 12px;
+
+        object-fit: contain;
+
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+      }
+
+      .moments-lightbox-close,
+      .moments-lightbox-arrow {
+        position: fixed;
+
+        z-index: 10001;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        width: 48px;
+
+        height: 48px;
+
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        border-radius: 50%;
+
+        background: rgba(255, 255, 255, 0.08);
+
+        color: white;
+
+        font-family: inherit;
+
+        font-size: 20px;
+
+        cursor: pointer;
+
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+      }
+
+      .moments-lightbox-close:hover,
+      .moments-lightbox-arrow:hover {
+        background: white;
+
+        color: black;
+      }
+
+      .moments-lightbox-close {
+        top: 25px;
+
+        right: 30px;
+      }
+
+      .moments-lightbox-arrow {
+        top: 50%;
+
+        transform: translateY(-50%);
+      }
+
+      .moments-lightbox-prev {
+        left: 25px;
+      }
+
+      .moments-lightbox-next {
+        right: 25px;
+      }
+
+      .moments-lightbox-counter {
+        position: fixed;
+
+        bottom: 25px;
+
+        left: 50%;
+
+        z-index: 10001;
+
+        transform: translateX(-50%);
+
+        padding: 8px 14px;
+
+        border-radius: 100px;
+
+        background: rgba(0, 0, 0, 0.65);
+
+        color: white;
+
+        font-size: 11px;
+      }
+
+      .moments-lightbox-event {
+        position: fixed;
+
+        bottom: 25px;
+
+        left: 25px;
+
+        z-index: 10001;
+
+        color: rgba(255, 255, 255, 0.7);
+
+        font-size: 12px;
+      }
+
+      /* =====================================================
+       MOBILE
+    ===================================================== */
+
+      @media (max-width: 900px) {
+        .moments-gallery {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+
+          grid-auto-rows: 230px;
+        }
+
+        .moment-card-large {
+          grid-column: span 2;
+
+          grid-row: span 2;
+        }
+
+        .moments-heading {
+          align-items: flex-start;
+
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .moments-hero {
+          min-height: 72vh;
+
+          padding: 130px 0 65px;
+        }
+
+        .moments-hero-title {
+          letter-spacing: -4px;
+        }
+
+        .moments-section {
+          padding: 75px 0 90px;
+        }
+
+        .moments-gallery {
+          grid-template-columns: 1fr;
+
+          grid-auto-rows: 280px;
+
+          gap: 10px;
+        }
+
+        .moment-card-large {
+          grid-column: span 1;
+
+          grid-row: span 1;
+        }
+
+        .moments-lightbox {
+          padding: 15px;
+        }
+
+        .moments-lightbox-arrow {
+          width: 42px;
+
+          height: 42px;
+        }
+
+        .moments-lightbox-prev {
+          left: 10px;
+        }
+
+        .moments-lightbox-next {
+          right: 10px;
+        }
+
+        .moments-lightbox-event {
+          display: none;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .moments-hero-stats {
+          gap: 25px;
+          margin-top: 35px;
+        }
+        .moments-stat strong {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- =====================================================
+       NAVIGATION
+  ===================================================== -->
+
+    <header class="site-header">
+      <nav class="navbar container">
+        <a href="index.html" class="brand">
+          <span class="brand-main"> AKS </span>
+
+          <span class="brand-sub"> EVENTS </span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html"> Home </a>
+
+          <a href="events.html"> Events </a>
+
+          <a href="about.html"> About </a>
+
+          <a href="content.html" class="active"> Moments </a>
+        </div>
+
+        <a href="events.html" class="nav-button"> Explore Events </a>
+
+        <button
+          class="mobile-menu-button"
+          id="mobileMenuButton"
+          aria-label="Open navigation"
+        >
+          ☰
+        </button>
+      </nav>
+
+      <div class="mobile-nav" id="mobileNav">
+        <a href="index.html"> Home </a>
+
+        <a href="events.html"> Events </a>
+
+        <a href="about.html"> About </a>
+
+        <a href="content.html"> Moments </a>
+
+        <a href="events.html"> Explore Events </a>
+      </div>
+    </header>
+
+    <!-- =====================================================
+       MAIN
+  ===================================================== -->
+
+    <main>
+      <!-- ===================================================
+         HERO
+    ==================================================== -->
+
+      <section class="moments-hero">
+        <div class="container moments-hero-content">
+          <div class="moments-hero-label">AKS EVENTS</div>
+
+          <h1 class="moments-hero-title">
+            Moments
+            <span>worth remembering.</span>
+          </h1>
+
+          <p class="moments-hero-description">
+            A collection of experiences, people, energy and memories captured
+            through AKS Events.
+          </p>
+
+          <div class="moments-hero-stats">
+            <div class="moments-stat">
+              <strong id="momentsEventCount"> 0 </strong>
+
+              <span> EVENTS </span>
+            </div>
+
+            <div class="moments-stat">
+              <strong id="momentsMediaCount"> 0 </strong>
+
+              <span> MOMENTS </span>
+            </div>
+
+            <div class="moments-stat">
+              <strong> AKS </strong>
+
+              <span> EXPERIENCES </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+         GALLERY
+    ==================================================== -->
+
+      <section class="moments-section">
+        <div class="container">
+          <div class="moments-heading">
+            <div>
+              <span class="section-label"> THE EXPERIENCE </span>
+
+              <h2>Moments.</h2>
+            </div>
+
+            <p>Explore moments captured across our events and experiences.</p>
+          </div>
+
+          <!-- FILTERS -->
+
+          <div class="moments-filters" id="momentsFilters">
+            <button class="moments-filter active" data-filter="all">
+              All Moments
+            </button>
+          </div>
+
+          <!-- GALLERY -->
+
+          <div class="moments-gallery" id="momentsGallery">
+            <div class="moments-loading">
+              <div class="loading-spinner"></div>
+
+              <p>Loading moments...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+         CTA
+    ==================================================== -->
+
+      <section class="cta-section">
+        <div class="cta-glow"></div>
+
+        <div class="container cta-content">
+          <span class="section-label"> DISCOVER MORE </span>
+
+          <h2>
+            More experiences.
+            <span>More memories.</span>
+          </h2>
+
+          <p>There is always another moment waiting to be experienced.</p>
+
+          <a href="events.html" class="button button-light">
+            Explore Events
+
+            <span> → </span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- =====================================================
+       LIGHTBOX
+  ===================================================== -->
+
+    <div class="moments-lightbox" id="momentsLightbox" aria-hidden="true">
+      <button
+        class="moments-lightbox-close"
+        id="momentsLightboxClose"
+        aria-label="Close viewer"
+      >
+        ×
+      </button>
+
+      <button
+        class="moments-lightbox-arrow moments-lightbox-prev"
+        id="momentsLightboxPrev"
+        aria-label="Previous moment"
+      >
+        ←
+      </button>
+
+      <div class="moments-lightbox-content" id="momentsLightboxContent"></div>
+
+      <button
+        class="moments-lightbox-arrow moments-lightbox-next"
+        id="momentsLightboxNext"
+        aria-label="Next moment"
+      >
+        →
+      </button>
+
+      <div class="moments-lightbox-counter" id="momentsLightboxCounter">
+        1 / 1
+      </div>
+
+      <div class="moments-lightbox-event" id="momentsLightboxEvent"></div>
+    </div>
+
+    <!-- =====================================================
+       FOOTER
+  ===================================================== -->
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-main">
+          <div class="footer-brand">
+            <a href="index.html" class="brand">
+              <span class="brand-main"> AKS </span>
+
+              <span class="brand-sub"> EVENTS </span>
+            </a>
+
+            <p>Experiences worth remembering.</p>
+          </div>
+
+          <div class="footer-links">
+            <div>
+              <h4>Explore</h4>
+              <a href="events.html"> Events </a>
+
+              <a href="content.html"> Moments </a>
+              <a href="about.html"> About </a>
+            </div>
+            <div>
+              <h4>Connect</h4>
+
+              <a href="#"> Instagram </a>
+
+              <a href="#"> Facebook </a>
+
+              <a href="#"> TikTok </a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>
+            ©
+            <span id="currentYear"></span>
+
+            AKS Events. All rights reserved.
+          </span>
+          <span> Made for unforgettable moments. </span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- =====================================================
+       SCRIPTS
+  ===================================================== -->
+
+    <script src="api.js"></script>
+
+    <script src="content.js"></script>
+  </body>
+</html>

@@ -6,379 +6,209 @@ const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 
-
 const API_URL = isLocal
   ? "http://localhost:5001/api"
   : "https://akseventsug-backend.onrender.com/api";
-
 
 // ============================================================
 // HELPER FUNCTIONS
 // ============================================================
 
 const getToken = () => {
-  return localStorage.getItem(
-    "soundEventsToken"
-  );
+  return localStorage.getItem("soundEventsToken");
 };
-
 
 const getAuthHeaders = () => {
-
-  const token =
-    getToken();
+  const token = getToken();
 
   return {
-    "Content-Type":
-      "application/json",
+    "Content-Type": "application/json",
 
-    Authorization:
-      `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   };
 };
-
 
 const getUploadHeaders = () => {
-
-  const token =
-    getToken();
+  const token = getToken();
 
   return {
-    Authorization:
-      `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   };
 };
-
 
 // ============================================================
 // RESPONSE HANDLER
 // ============================================================
 
-const handleResponse = async (
-  response
-) => {
-
+const handleResponse = async (response) => {
   let data = null;
 
-
   try {
-
-    data =
-      await response.json();
-
+    data = await response.json();
   } catch (error) {
-
     if (!response.ok) {
-
-      throw new Error(
-        `Request failed with status ${response.status}`
-      );
+      throw new Error(`Request failed with status ${response.status}`);
     }
 
-    throw new Error(
-      "Server returned an invalid response."
-    );
+    throw new Error("Server returned an invalid response.");
   }
-
 
   if (!response.ok) {
-
     throw new Error(
       data?.message ||
-      data?.error ||
-      `Request failed with status ${response.status}`
+        data?.error ||
+        `Request failed with status ${response.status}`,
     );
   }
-
 
   return data;
 };
-
 
 // ============================================================
 // AUTHENTICATION
 // ============================================================
 
-const loginAdmin = async (
-  username,
-  password
-) => {
-
+const loginAdmin = async (username, password) => {
   try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
 
-    const response =
-      await fetch(
-        `${API_URL}/auth/login`,
-        {
-          method:
-            "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
 
-          body:
-            JSON.stringify({
-              username,
-              password,
-            }),
-        }
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      "Admin login failed:",
-      error
-    );
+    console.error("Admin login failed:", error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // EVENTS — GET ALL
 // ============================================================
 
 const getEvents = async () => {
-
   try {
-
-    const response =
-      await fetch(
-        `${API_URL}/events`
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    const response = await fetch(`${API_URL}/events`);
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      "Failed to load events:",
-      error
-    );
+    console.error("Failed to load events:", error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // EVENTS — GET SINGLE
 // ============================================================
 
-const getEvent = async (
-  id
-) => {
-
+const getEvent = async (id) => {
   try {
+    const response = await fetch(`${API_URL}/events/${id}`);
 
-    const response =
-      await fetch(
-        `${API_URL}/events/${id}`
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      `Failed to load event ${id}:`,
-      error
-    );
+    console.error(`Failed to load event ${id}:`, error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // EVENTS — CREATE
 // ============================================================
 
-const createEvent = async (
-  eventData
-) => {
-
+const createEvent = async (eventData) => {
   try {
+    const response = await fetch(`${API_URL}/events`, {
+      method: "POST",
 
-    const response =
-      await fetch(
-        `${API_URL}/events`,
-        {
-          method:
-            "POST",
+      headers: getAuthHeaders(),
 
-          headers:
-            getAuthHeaders(),
+      body: JSON.stringify(eventData),
+    });
 
-          body:
-            JSON.stringify(
-              eventData
-            ),
-        }
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      "Failed to create event:",
-      error
-    );
+    console.error("Failed to create event:", error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // EVENTS — UPDATE
 // ============================================================
 
-const updateEvent = async (
-  id,
-  eventData
-) => {
-
+const updateEvent = async (id, eventData) => {
   try {
+    const response = await fetch(`${API_URL}/events/${id}`, {
+      method: "PUT",
 
-    const response =
-      await fetch(
-        `${API_URL}/events/${id}`,
-        {
-          method:
-            "PUT",
+      headers: getAuthHeaders(),
 
-          headers:
-            getAuthHeaders(),
+      body: JSON.stringify(eventData),
+    });
 
-          body:
-            JSON.stringify(
-              eventData
-            ),
-        }
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      `Failed to update event ${id}:`,
-      error
-    );
+    console.error(`Failed to update event ${id}:`, error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // EVENTS — DELETE
 // ============================================================
 
-const deleteEvent = async (
-  id
-) => {
-
+const deleteEvent = async (id) => {
   try {
+    const response = await fetch(`${API_URL}/events/${id}`, {
+      method: "DELETE",
 
-    const response =
-      await fetch(
-        `${API_URL}/events/${id}`,
-        {
-          method:
-            "DELETE",
+      headers: getAuthHeaders(),
+    });
 
-          headers:
-            getAuthHeaders(),
-        }
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      `Failed to delete event ${id}:`,
-      error
-    );
+    console.error(`Failed to delete event ${id}:`, error);
 
     throw error;
   }
 };
 
-
 // ============================================================
 // MEDIA — UPLOAD IMAGE
 // ============================================================
 
-const uploadImage = async (
-  file
-) => {
-
+const uploadImage = async (file) => {
   if (!file) {
     return null;
   }
 
-
   try {
+    const formData = new FormData();
 
-    const formData =
-      new FormData();
+    formData.append("image", file);
 
+    const response = await fetch(`${API_URL}/events/upload-image`, {
+      method: "POST",
 
-    formData.append(
-      "image",
-      file
-    );
+      headers: getUploadHeaders(),
 
+      body: formData,
+    });
 
-    const response =
-      await fetch(
-        `${API_URL}/events/upload-image`,
-        {
-          method:
-            "POST",
-
-          headers:
-            getUploadHeaders(),
-
-          body:
-            formData,
-        }
-      );
-
-
-    const data =
-      await handleResponse(
-        response
-      );
-
+    const data = await handleResponse(response);
 
     /*
      * Backend returns:
@@ -390,73 +220,40 @@ const uploadImage = async (
      */
 
     if (!data?.image_url) {
-
-      throw new Error(
-        "Image upload succeeded but no image URL was returned."
-      );
+      throw new Error("Image upload succeeded but no image URL was returned.");
     }
 
-
     return data.image_url;
-
   } catch (error) {
-
-    console.error(
-      "Image upload failed:",
-      error
-    );
+    console.error("Image upload failed:", error);
 
     throw error;
   }
 };
 
-
 // ============================================================
 // MEDIA — UPLOAD VIDEO
 // ============================================================
 
-const uploadVideo = async (
-  file
-) => {
-
+const uploadVideo = async (file) => {
   if (!file) {
     return null;
   }
 
-
   try {
+    const formData = new FormData();
 
-    const formData =
-      new FormData();
+    formData.append("video", file);
 
+    const response = await fetch(`${API_URL}/events/upload-video`, {
+      method: "POST",
 
-    formData.append(
-      "video",
-      file
-    );
+      headers: getUploadHeaders(),
 
+      body: formData,
+    });
 
-    const response =
-      await fetch(
-        `${API_URL}/events/upload-video`,
-        {
-          method:
-            "POST",
-
-          headers:
-            getUploadHeaders(),
-
-          body:
-            formData,
-        }
-      );
-
-
-    const data =
-      await handleResponse(
-        response
-      );
-
+    const data = await handleResponse(response);
 
     /*
      * Backend returns:
@@ -468,226 +265,123 @@ const uploadVideo = async (
      */
 
     if (!data?.video_url) {
-
-      throw new Error(
-        "Video upload succeeded but no video URL was returned."
-      );
+      throw new Error("Video upload succeeded but no video URL was returned.");
     }
 
-
     return data.video_url;
-
   } catch (error) {
-
-    console.error(
-      "Video upload failed:",
-      error
-    );
+    console.error("Video upload failed:", error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // MEDIA — GET EVENT MEDIA
 // ============================================================
 
-const getEventMedia = async (
-  eventId
-) => {
-
+const getEventMedia = async (eventId) => {
   try {
+    const response = await fetch(`${API_URL}/event-media/${eventId}`);
 
-    const response =
-      await fetch(
-        `${API_URL}/event-media/${eventId}`
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      `Failed to load media for event ${eventId}:`,
-      error
-    );
+    console.error(`Failed to load media for event ${eventId}:`, error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // MEDIA — UPLOAD TO EVENT
 // ============================================================
 
-const uploadEventMedia = async (
-  eventId,
-  file
-) => {
-
+const uploadEventMedia = async (eventId, file) => {
   if (!file) {
     return null;
   }
 
-
   try {
+    const formData = new FormData();
 
-    const formData =
-      new FormData();
+    formData.append("media", file);
 
+    const response = await fetch(`${API_URL}/event-media/${eventId}/upload`, {
+      method: "POST",
 
-    formData.append(
-      "media",
-      file
-    );
+      headers: getUploadHeaders(),
 
+      body: formData,
+    });
 
-    const response =
-      await fetch(
-        `${API_URL}/event-media/${eventId}/upload`,
-        {
-          method:
-            "POST",
-
-          headers:
-            getUploadHeaders(),
-
-          body:
-            formData,
-        }
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      `Failed to upload media for event ${eventId}:`,
-      error
-    );
+    console.error(`Failed to upload media for event ${eventId}:`, error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // MEDIA — DELETE
 // ============================================================
 
-const deleteEventMedia = async (
-  mediaId
-) => {
-
+const deleteEventMedia = async (mediaId) => {
   try {
+    const response = await fetch(`${API_URL}/event-media/media/${mediaId}`, {
+      method: "DELETE",
 
-    const response =
-      await fetch(
-        `${API_URL}/event-media/media/${mediaId}`,
-        {
-          method:
-            "DELETE",
+      headers: getUploadHeaders(),
+    });
 
-          headers:
-            getUploadHeaders(),
-        }
-      );
-
-
-    return await handleResponse(
-      response
-    );
-
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      `Failed to delete media ${mediaId}:`,
-      error
-    );
+    console.error(`Failed to delete media ${mediaId}:`, error);
 
     throw error;
   }
 };
-
 
 // ============================================================
 // MEDIA — UPDATE ORDER
 // ============================================================
 
-const updateEventMediaOrder = async (
-  mediaId,
-  sortOrder
-) => {
-
+const updateEventMediaOrder = async (mediaId, sortOrder) => {
   try {
+    const response = await fetch(
+      `${API_URL}/event-media/media/${mediaId}/order`,
+      {
+        method: "PUT",
 
-    const response =
-      await fetch(
-        `${API_URL}/event-media/media/${mediaId}/order`,
-        {
-          method:
-            "PUT",
+        headers: getAuthHeaders(),
 
-          headers:
-            getAuthHeaders(),
-
-          body:
-            JSON.stringify({
-              sort_order:
-                sortOrder,
-            }),
-        }
-      );
-
-
-    return await handleResponse(
-      response
+        body: JSON.stringify({
+          sort_order: sortOrder,
+        }),
+      },
     );
 
+    return await handleResponse(response);
   } catch (error) {
-
-    console.error(
-      `Failed to update media order ${mediaId}:`,
-      error
-    );
+    console.error(`Failed to update media order ${mediaId}:`, error);
 
     throw error;
   }
 };
 
-
 // ============================================================
 // API INFORMATION
 // ============================================================
 
-console.log(
-  `🌐 API Environment: ${
-    isLocal
-      ? "LOCAL"
-      : "PRODUCTION"
-  }`
-);
+console.log(`🌐 API Environment: ${isLocal ? "LOCAL" : "PRODUCTION"}`);
 
-
-console.log(
-  `🔗 API URL: ${API_URL}`
-);
-
+console.log(`🔗 API URL: ${API_URL}`);
 
 // ============================================================
 // EXPOSE API
 // ============================================================
 
 window.api = {
-
   // ----------------------------------------------------------
   // Authentication
   // ----------------------------------------------------------
@@ -695,7 +389,6 @@ window.api = {
   loginAdmin,
 
   getToken,
-
 
   // ----------------------------------------------------------
   // Events
@@ -710,7 +403,6 @@ window.api = {
   updateEvent,
 
   deleteEvent,
-
 
   // ----------------------------------------------------------
   // Media
@@ -727,5 +419,4 @@ window.api = {
   deleteEventMedia,
 
   updateEventMediaOrder,
-
 };
