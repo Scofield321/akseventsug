@@ -41,24 +41,35 @@ const getUploadHeaders = () => {
 // ============================================================
 
 const handleResponse = async (response) => {
-  let data = null;
+  const contentType = response.headers.get("content-type") || "";
+
+  let data;
 
   try {
-    data = await response.json();
-  } catch (error) {
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
+    if (contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
     }
-
-    throw new Error("Server returned an invalid response.");
+  } catch (error) {
+    data = null;
   }
 
   if (!response.ok) {
-    throw new Error(
-      data?.message ||
-        data?.error ||
-        `Request failed with status ${response.status}`,
-    );
+    console.error("API ERROR:", {
+      status: response.status,
+      statusText: response.statusText,
+      data,
+    });
+
+    const message =
+      typeof data === "string"
+        ? data
+        : data?.message ||
+          data?.error ||
+          `Request failed with status ${response.status}`;
+
+    throw new Error(message);
   }
 
   return data;

@@ -691,12 +691,20 @@ const uploadEventImage = async (
 // UPLOAD EVENT VIDEO
 // ============================================================
 
+// ============================================================
+// UPLOAD EVENT VIDEO
+// ============================================================
+
 const uploadEventVideo = async (
   req,
   res
 ) => {
 
   try {
+
+    // --------------------------------------------------------
+    // CHECK FILE
+    // --------------------------------------------------------
 
     if (!req.file) {
 
@@ -707,9 +715,23 @@ const uploadEventVideo = async (
 
     }
 
+    console.log(
+      "📁 Video received:",
+      {
+        originalname:
+          req.file.originalname,
+
+        mimetype:
+          req.file.mimetype,
+
+        size:
+          req.file.size,
+      }
+    );
+
 
     // --------------------------------------------------------
-    // VALIDATE VIDEO
+    // VALIDATE VIDEO MIME TYPE
     // --------------------------------------------------------
 
     const allowedVideoTypes = [
@@ -725,9 +747,14 @@ const uploadEventVideo = async (
       )
     ) {
 
+      console.error(
+        "🔴 Invalid video MIME type:",
+        req.file.mimetype
+      );
+
       return res.status(400).json({
         message:
-          "Invalid video format. Please upload MP4, WebM or MOV.",
+          `Invalid video format: ${req.file.mimetype}. Please upload MP4, WebM or MOV.`,
       });
 
     }
@@ -745,6 +772,32 @@ const uploadEventVideo = async (
         .toLowerCase();
 
 
+    const allowedExtensions = [
+      ".mp4",
+      ".webm",
+      ".mov",
+    ];
+
+
+    if (
+      !allowedExtensions.includes(
+        fileExt
+      )
+    ) {
+
+      console.error(
+        "🔴 Invalid video extension:",
+        fileExt
+      );
+
+      return res.status(400).json({
+        message:
+          "Invalid video extension. Please upload MP4, WebM or MOV.",
+      });
+
+    }
+
+
     // --------------------------------------------------------
     // UNIQUE FILE NAME
     // --------------------------------------------------------
@@ -757,6 +810,23 @@ const uploadEventVideo = async (
 
     const filePath =
       `events/videos/${fileName}`;
+
+
+    console.log(
+      "📤 Uploading video to Supabase:",
+      {
+        bucket:
+          "akseventsug",
+
+        filePath,
+
+        contentType:
+          req.file.mimetype,
+
+        size:
+          req.file.size,
+      }
+    );
 
 
     // --------------------------------------------------------
@@ -781,16 +851,43 @@ const uploadEventVideo = async (
         );
 
 
+    // --------------------------------------------------------
+    // HANDLE SUPABASE ERROR
+    // --------------------------------------------------------
+
     if (uploadError) {
 
       console.error(
-        "🔴 Supabase video upload error:",
+        "🔴 SUPABASE VIDEO UPLOAD FAILED"
+      );
+
+      console.error(
+        "Error object:",
         uploadError
+      );
+
+      console.error(
+        "Error message:",
+        uploadError.message
+      );
+
+      console.error(
+        "Error details:",
+        uploadError.details
+      );
+
+      console.error(
+        "Error hint:",
+        uploadError.hint
       );
 
       return res.status(500).json({
         message:
           "Failed to upload video",
+
+        error:
+          uploadError.message ||
+          "Unknown Supabase storage error",
       });
 
     }
@@ -816,6 +913,10 @@ const uploadEventVideo = async (
 
     if (!videoUrl) {
 
+      console.error(
+        "🔴 Supabase returned no public video URL"
+      );
+
       return res.status(500).json({
         message:
           "Video uploaded but no public URL was returned",
@@ -823,6 +924,10 @@ const uploadEventVideo = async (
 
     }
 
+
+    // --------------------------------------------------------
+    // SUCCESS
+    // --------------------------------------------------------
 
     console.log(
       "🟢 Video uploaded successfully:",
@@ -840,17 +945,33 @@ const uploadEventVideo = async (
 
     });
 
+
   } catch (error) {
 
     console.error(
-      "🔴 Video upload error:",
+      "🔴 VIDEO UPLOAD SERVER ERROR:",
       error
+    );
+
+    console.error(
+      "Error message:",
+      error.message
+    );
+
+    console.error(
+      "Error stack:",
+      error.stack
     );
 
     res.status(500).json({
       message:
         "Server error during video upload",
+
+      error:
+        error.message ||
+        "Unknown server error",
     });
+
   }
 };
 
