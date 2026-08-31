@@ -4,7 +4,6 @@ if (!token) {
   window.location.href = "login.html";
 }
 
-
 /* =========================================
    DOM ELEMENTS
 ========================================= */
@@ -21,7 +20,6 @@ const titleInput = document.getElementById("title");
 const imageInput = document.getElementById("image");
 const videoInput = document.getElementById("video");
 
-
 /* =========================================
    STATE
 ========================================= */
@@ -30,7 +28,6 @@ let editingEventId = null;
 
 let selectedImages = [];
 let selectedVideos = [];
-
 
 /* =========================================
    MESSAGE
@@ -43,12 +40,8 @@ const showMessage = (text, type = "success") => {
 
   message.textContent = text;
 
-  message.style.color =
-    type === "error"
-      ? "#dc2626"
-      : "#15803d";
+  message.style.color = type === "error" ? "#dc2626" : "#15803d";
 };
-
 
 /* =========================================
    SLUG
@@ -63,16 +56,12 @@ const generateSlug = (title) => {
     .replace(/-+/g, "-");
 };
 
-
 /* =========================================
    HTML ESCAPE
 ========================================= */
 
 const escapeHtml = (value) => {
-  if (
-    value === null ||
-    value === undefined
-  ) {
+  if (value === null || value === undefined) {
     return "";
   }
 
@@ -83,7 +72,6 @@ const escapeHtml = (value) => {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 };
-
 
 /* =========================================
    DATE
@@ -103,13 +91,11 @@ const formatDate = (dateString) => {
   return date.toLocaleString();
 };
 
-
 /* =========================================
    RESET FORM
 ========================================= */
 
 const resetForm = () => {
-
   if (eventForm) {
     eventForm.reset();
   }
@@ -135,11 +121,9 @@ const resetForm = () => {
   renderImagePreviews();
   renderVideoPreviews();
 
-  const imageUploadStatus =
-    document.getElementById("imageUploadStatus");
+  const imageUploadStatus = document.getElementById("imageUploadStatus");
 
-  const videoUploadStatus =
-    document.getElementById("videoUploadStatus");
+  const videoUploadStatus = document.getElementById("videoUploadStatus");
 
   if (imageUploadStatus) {
     imageUploadStatus.textContent = "";
@@ -150,99 +134,70 @@ const resetForm = () => {
   }
 };
 
-
 /* =========================================
    IMAGE PREVIEW CONTAINER
 ========================================= */
 
 const getImagePreviewContainer = () => {
-
-  let container =
-    document.getElementById(
-      "imagePreviewGallery"
-    );
+  let container = document.getElementById("imagePreviewGallery");
 
   if (!container && imageInput) {
+    container = document.createElement("div");
 
-    container =
-      document.createElement("div");
+    container.id = "imagePreviewGallery";
 
-    container.id =
-      "imagePreviewGallery";
-
-    container.style.display =
-      "grid";
+    container.style.display = "grid";
 
     container.style.gridTemplateColumns =
       "repeat(auto-fill, minmax(150px, 1fr))";
 
-    container.style.gap =
-      "12px";
+    container.style.gap = "12px";
 
-    container.style.marginTop =
-      "12px";
+    container.style.marginTop = "12px";
 
     if (imageInput.parentElement) {
-      imageInput.parentElement.appendChild(
-        container
-      );
+      imageInput.parentElement.appendChild(container);
     }
   }
 
   return container;
 };
-
 
 /* =========================================
    VIDEO PREVIEW CONTAINER
 ========================================= */
 
 const getVideoPreviewContainer = () => {
-
-  let container =
-    document.getElementById(
-      "videoPreviewGallery"
-    );
+  let container = document.getElementById("videoPreviewGallery");
 
   if (!container && videoInput) {
+    container = document.createElement("div");
 
-    container =
-      document.createElement("div");
+    container.id = "videoPreviewGallery";
 
-    container.id =
-      "videoPreviewGallery";
-
-    container.style.display =
-      "grid";
+    container.style.display = "grid";
 
     container.style.gridTemplateColumns =
       "repeat(auto-fill, minmax(220px, 1fr))";
 
-    container.style.gap =
-      "12px";
+    container.style.gap = "12px";
 
-    container.style.marginTop =
-      "12px";
+    container.style.marginTop = "12px";
 
     if (videoInput.parentElement) {
-      videoInput.parentElement.appendChild(
-        container
-      );
+      videoInput.parentElement.appendChild(container);
     }
   }
 
   return container;
 };
 
-
 /* =========================================
    IMAGE PREVIEWS
 ========================================= */
 
 const renderImagePreviews = () => {
-
-  const container =
-    getImagePreviewContainer();
+  const container = getImagePreviewContainer();
 
   if (!container) {
     return;
@@ -254,165 +209,107 @@ const renderImagePreviews = () => {
     return;
   }
 
-  selectedImages.forEach(
-    (item, index) => {
+  selectedImages.forEach((item, index) => {
+    const wrapper = document.createElement("div");
 
-      const wrapper =
-        document.createElement("div");
+    wrapper.style.position = "relative";
 
-      wrapper.style.position =
-        "relative";
+    wrapper.style.border = "1px solid #d1d5db";
 
-      wrapper.style.border =
-        "1px solid #d1d5db";
+    wrapper.style.borderRadius = "8px";
 
-      wrapper.style.borderRadius =
-        "8px";
+    wrapper.style.overflow = "hidden";
 
-      wrapper.style.overflow =
-        "hidden";
+    wrapper.style.background = "#f9fafb";
 
-      wrapper.style.background =
-        "#f9fafb";
+    const image = document.createElement("img");
 
+    image.src = item.url;
 
-      const image =
-        document.createElement("img");
+    image.alt = item.name || `Event image ${index + 1}`;
 
-      image.src =
-        item.url;
+    image.style.width = "100%";
 
-      image.alt =
-        item.name ||
-        `Event image ${index + 1}`;
+    image.style.height = "130px";
 
-      image.style.width =
-        "100%";
+    image.style.objectFit = "cover";
 
-      image.style.height =
-        "130px";
+    image.style.display = "block";
 
-      image.style.objectFit =
-        "cover";
+    const number = document.createElement("span");
 
-      image.style.display =
-        "block";
+    number.textContent = String(index + 1).padStart(2, "0");
 
+    number.style.position = "absolute";
 
-      const number =
-        document.createElement("span");
+    number.style.left = "8px";
 
-      number.textContent =
-        String(index + 1).padStart(2, "0");
+    number.style.bottom = "8px";
 
-      number.style.position =
-        "absolute";
+    number.style.background = "rgba(0,0,0,.65)";
 
-      number.style.left =
-        "8px";
+    number.style.color = "#fff";
 
-      number.style.bottom =
-        "8px";
+    number.style.padding = "4px 7px";
 
-      number.style.background =
-        "rgba(0,0,0,.65)";
+    number.style.borderRadius = "4px";
 
-      number.style.color =
-        "#fff";
+    number.style.fontSize = "12px";
 
-      number.style.padding =
-        "4px 7px";
+    const remove = document.createElement("button");
 
-      number.style.borderRadius =
-        "4px";
+    remove.type = "button";
 
-      number.style.fontSize =
-        "12px";
+    remove.textContent = "×";
 
+    remove.title = "Remove image";
 
-      const remove =
-        document.createElement("button");
+    remove.style.position = "absolute";
 
-      remove.type =
-        "button";
+    remove.style.top = "6px";
 
-      remove.textContent =
-        "×";
+    remove.style.right = "6px";
 
-      remove.title =
-        "Remove image";
+    remove.style.width = "28px";
 
-      remove.style.position =
-        "absolute";
+    remove.style.height = "28px";
 
-      remove.style.top =
-        "6px";
+    remove.style.padding = "0";
 
-      remove.style.right =
-        "6px";
+    remove.style.borderRadius = "50%";
 
-      remove.style.width =
-        "28px";
+    remove.style.background = "#dc2626";
 
-      remove.style.height =
-        "28px";
+    remove.style.color = "#fff";
 
-      remove.style.padding =
-        "0";
+    remove.style.fontSize = "18px";
 
-      remove.style.borderRadius =
-        "50%";
+    remove.style.lineHeight = "28px";
 
-      remove.style.background =
-        "#dc2626";
+    remove.style.border = "none";
 
-      remove.style.color =
-        "#fff";
+    remove.style.cursor = "pointer";
 
-      remove.style.fontSize =
-        "18px";
+    remove.addEventListener("click", () => {
+      selectedImages.splice(index, 1);
 
-      remove.style.lineHeight =
-        "28px";
+      renderImagePreviews();
+    });
 
-      remove.style.border =
-        "none";
+    wrapper.appendChild(image);
+    wrapper.appendChild(number);
+    wrapper.appendChild(remove);
 
-      remove.style.cursor =
-        "pointer";
-
-      remove.addEventListener(
-        "click",
-        () => {
-
-          selectedImages.splice(
-            index,
-            1
-          );
-
-          renderImagePreviews();
-        }
-      );
-
-
-      wrapper.appendChild(image);
-      wrapper.appendChild(number);
-      wrapper.appendChild(remove);
-
-      container.appendChild(wrapper);
-    }
-  );
+    container.appendChild(wrapper);
+  });
 };
-
 
 /* =========================================
    VIDEO PREVIEWS
 ========================================= */
 
 const renderVideoPreviews = () => {
-
-  const container =
-    getVideoPreviewContainer();
+  const container = getVideoPreviewContainer();
 
   if (!container) {
     return;
@@ -424,168 +321,111 @@ const renderVideoPreviews = () => {
     return;
   }
 
-  selectedVideos.forEach(
-    (item, index) => {
+  selectedVideos.forEach((item, index) => {
+    const wrapper = document.createElement("div");
 
-      const wrapper =
-        document.createElement("div");
+    wrapper.style.position = "relative";
 
-      wrapper.style.position =
-        "relative";
+    wrapper.style.border = "1px solid #d1d5db";
 
-      wrapper.style.border =
-        "1px solid #d1d5db";
+    wrapper.style.borderRadius = "8px";
 
-      wrapper.style.borderRadius =
-        "8px";
+    wrapper.style.overflow = "hidden";
 
-      wrapper.style.overflow =
-        "hidden";
+    wrapper.style.background = "#000";
 
-      wrapper.style.background =
-        "#000";
+    const video = document.createElement("video");
 
+    video.src = item.url;
 
-      const video =
-        document.createElement("video");
+    video.controls = true;
 
-      video.src =
-        item.url;
+    video.preload = "metadata";
 
-      video.controls =
-        true;
+    video.style.width = "100%";
 
-      video.preload =
-        "metadata";
+    video.style.height = "150px";
 
-      video.style.width =
-        "100%";
+    video.style.objectFit = "cover";
 
-      video.style.height =
-        "150px";
+    video.style.display = "block";
 
-      video.style.objectFit =
-        "cover";
+    const number = document.createElement("span");
 
-      video.style.display =
-        "block";
+    number.textContent = String(index + 1).padStart(2, "0");
 
+    number.style.position = "absolute";
 
-      const number =
-        document.createElement("span");
+    number.style.left = "8px";
 
-      number.textContent =
-        String(index + 1).padStart(2, "0");
+    number.style.top = "8px";
 
-      number.style.position =
-        "absolute";
+    number.style.background = "rgba(0,0,0,.65)";
 
-      number.style.left =
-        "8px";
+    number.style.color = "#fff";
 
-      number.style.top =
-        "8px";
+    number.style.padding = "4px 7px";
 
-      number.style.background =
-        "rgba(0,0,0,.65)";
+    number.style.borderRadius = "4px";
 
-      number.style.color =
-        "#fff";
+    number.style.fontSize = "12px";
 
-      number.style.padding =
-        "4px 7px";
+    const remove = document.createElement("button");
 
-      number.style.borderRadius =
-        "4px";
+    remove.type = "button";
 
-      number.style.fontSize =
-        "12px";
+    remove.textContent = "×";
 
+    remove.title = "Remove video";
 
-      const remove =
-        document.createElement("button");
+    remove.style.position = "absolute";
 
-      remove.type =
-        "button";
+    remove.style.top = "6px";
 
-      remove.textContent =
-        "×";
+    remove.style.right = "6px";
 
-      remove.title =
-        "Remove video";
+    remove.style.width = "28px";
 
-      remove.style.position =
-        "absolute";
+    remove.style.height = "28px";
 
-      remove.style.top =
-        "6px";
+    remove.style.padding = "0";
 
-      remove.style.right =
-        "6px";
+    remove.style.borderRadius = "50%";
 
-      remove.style.width =
-        "28px";
+    remove.style.background = "#dc2626";
 
-      remove.style.height =
-        "28px";
+    remove.style.color = "#fff";
 
-      remove.style.padding =
-        "0";
+    remove.style.fontSize = "18px";
 
-      remove.style.borderRadius =
-        "50%";
+    remove.style.border = "none";
 
-      remove.style.background =
-        "#dc2626";
+    remove.style.cursor = "pointer";
 
-      remove.style.color =
-        "#fff";
+    remove.addEventListener("click", () => {
+      selectedVideos.splice(index, 1);
 
-      remove.style.fontSize =
-        "18px";
+      renderVideoPreviews();
+    });
 
-      remove.style.border =
-        "none";
+    wrapper.appendChild(video);
+    wrapper.appendChild(number);
+    wrapper.appendChild(remove);
 
-      remove.style.cursor =
-        "pointer";
-
-      remove.addEventListener(
-        "click",
-        () => {
-
-          selectedVideos.splice(
-            index,
-            1
-          );
-
-          renderVideoPreviews();
-        }
-      );
-
-
-      wrapper.appendChild(video);
-      wrapper.appendChild(number);
-      wrapper.appendChild(remove);
-
-      container.appendChild(wrapper);
-    }
-  );
+    container.appendChild(wrapper);
+  });
 };
-
 
 /* =========================================
    LOAD EVENTS
 ========================================= */
 
 const loadEvents = async () => {
-
   if (!eventsTableBody) {
     return;
   }
 
   try {
-
     eventsTableBody.innerHTML = `
       <tr>
         <td colspan="5">
@@ -594,21 +434,13 @@ const loadEvents = async () => {
       </tr>
     `;
 
-
-    const events =
-      await window.api.getEvents();
-
+    const events = await window.api.getEvents();
 
     if (!Array.isArray(events)) {
-
-      throw new Error(
-        "Invalid events response from server."
-      );
+      throw new Error("Invalid events response from server.");
     }
 
-
     if (!events.length) {
-
       eventsTableBody.innerHTML = `
         <tr>
           <td colspan="5">
@@ -620,65 +452,33 @@ const loadEvents = async () => {
       return;
     }
 
+    eventsTableBody.innerHTML = events
+      .map((event) => {
+        const media = Array.isArray(event.media) ? event.media : [];
 
-    eventsTableBody.innerHTML =
-      events
-        .map(
-          (event) => {
+        const imageMedia = media.filter((item) => item.media_type === "image");
 
-            const media =
-              Array.isArray(event.media)
-                ? event.media
-                : [];
+        const videoMedia = media.filter((item) => item.media_type === "video");
 
+        const imageCount = imageMedia.length;
 
-            const imageMedia =
-              media.filter(
-                item =>
-                  item.media_type ===
-                  "image"
-              );
+        const videoCount = videoMedia.length;
 
+        /*
+         * Prefer event_media image.
+         * Fall back to events.image_url
+         * for older events.
+         */
 
-            const videoMedia =
-              media.filter(
-                item =>
-                  item.media_type ===
-                  "video"
-              );
+        const thumbnail = imageMedia.length
+          ? imageMedia[0].media_url
+          : event.image_url;
 
+        const hasImage = imageCount > 0 || !!event.image_url;
 
-            const imageCount =
-              imageMedia.length;
+        const hasVideo = videoCount > 0 || !!event.video_url;
 
-
-            const videoCount =
-              videoMedia.length;
-
-
-            /*
-             * Prefer event_media image.
-             * Fall back to events.image_url
-             * for older events.
-             */
-
-            const thumbnail =
-              imageMedia.length
-                ? imageMedia[0].media_url
-                : event.image_url;
-
-
-            const hasImage =
-              imageCount > 0 ||
-              !!event.image_url;
-
-
-            const hasVideo =
-              videoCount > 0 ||
-              !!event.video_url;
-
-
-            return `
+        return `
               <tr>
 
                 <td>
@@ -695,12 +495,8 @@ const loadEvents = async () => {
                       thumbnail
                         ? `
                           <img
-                            src="${escapeHtml(
-                              thumbnail
-                            )}"
-                            alt="${escapeHtml(
-                              event.title
-                            )}"
+                            src="${escapeHtml(thumbnail)}"
+                            alt="${escapeHtml(event.title)}"
                             style="
                               width:70px;
                               height:55px;
@@ -733,9 +529,7 @@ const loadEvents = async () => {
                     <div>
 
                       <strong>
-                        ${escapeHtml(
-                          event.title
-                        )}
+                        ${escapeHtml(event.title)}
                       </strong>
 
                       <div
@@ -746,23 +540,9 @@ const loadEvents = async () => {
                         "
                       >
 
-                        ${
-                          hasImage
-                            ? `🖼 ${
-                                imageCount ||
-                                1
-                              }`
-                            : ""
-                        }
+                        ${hasImage ? `🖼 ${imageCount || 1}` : ""}
 
-                        ${
-                          hasVideo
-                            ? ` &nbsp; 🎥 ${
-                                videoCount ||
-                                1
-                              }`
-                            : ""
-                        }
+                        ${hasVideo ? ` &nbsp; 🎥 ${videoCount || 1}` : ""}
 
                       </div>
 
@@ -774,34 +554,21 @@ const loadEvents = async () => {
 
 
                 <td>
-                  ${escapeHtml(
-                    formatDate(
-                      event.event_date
-                    )
-                  )}
+                  ${escapeHtml(formatDate(event.event_date))}
                 </td>
 
 
                 <td>
-                  ${escapeHtml(
-                    event.location ||
-                    "-"
-                  )}
+                  ${escapeHtml(event.location || "-")}
                 </td>
 
 
                 <td>
 
                   <span
-                    class="status ${escapeHtml(
-                      event.status ||
-                      "draft"
-                    )}"
+                    class="status ${escapeHtml(event.status || "draft")}"
                   >
-                    ${escapeHtml(
-                      event.status ||
-                      "draft"
-                    )}
+                    ${escapeHtml(event.status || "draft")}
                   </span>
 
                 </td>
@@ -820,9 +587,7 @@ const loadEvents = async () => {
                     <button
                       class="edit"
                       type="button"
-                      onclick="startEdit(${Number(
-                        event.id
-                      )})"
+                      onclick="startEdit(${Number(event.id)})"
                     >
                       Edit
                     </button>
@@ -831,9 +596,7 @@ const loadEvents = async () => {
                     <button
                       class="danger"
                       type="button"
-                      onclick="removeEvent(${Number(
-                        event.id
-                      )})"
+                      onclick="removeEvent(${Number(event.id)})"
                     >
                       Delete
                     </button>
@@ -844,21 +607,12 @@ const loadEvents = async () => {
 
               </tr>
             `;
-          }
-        )
-        .join("");
-
+      })
+      .join("");
   } catch (error) {
+    console.error("Failed to load events:", error);
 
-    console.error(
-      "Failed to load events:",
-      error
-    );
-
-    showMessage(
-      error.message,
-      "error"
-    );
+    showMessage(error.message, "error");
 
     eventsTableBody.innerHTML = `
       <tr>
@@ -870,396 +624,224 @@ const loadEvents = async () => {
   }
 };
 
-
 /* =========================================
    TITLE → SLUG
 ========================================= */
 
 if (titleInput) {
+  titleInput.addEventListener("input", () => {
+    const slugInput = document.getElementById("slug");
 
-  titleInput.addEventListener(
-    "input",
-    () => {
-
-      const slugInput =
-        document.getElementById("slug");
-
-      if (slugInput) {
-
-        slugInput.value =
-          generateSlug(
-            titleInput.value
-          );
-      }
+    if (slugInput) {
+      slugInput.value = generateSlug(titleInput.value);
     }
-  );
+  });
 }
-
 
 /* =========================================
    IMAGE UPLOAD HANDLER
 ========================================= */
 
 if (imageInput) {
+  imageInput.addEventListener("change", async () => {
+    const files = Array.from(imageInput.files || []);
 
-  imageInput.addEventListener(
-    "change",
-    async () => {
+    if (!files.length) {
+      return;
+    }
 
-      const files =
-        Array.from(
-          imageInput.files || []
-        );
+    const maxSize = 5 * 1024 * 1024 * 1024; // 5 GB
 
+    imageInput.value = "";
 
-      if (!files.length) {
-        return;
-      }
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
 
+        if (!file.type.startsWith("image/")) {
+          showMessage(`${file.name} is not a valid image.`, "error");
 
-      const maxSize =
-        5 * 1024 * 1024;
-
-
-      imageInput.value = "";
-
-
-      try {
-
-        for (
-          let i = 0;
-          i < files.length;
-          i++
-        ) {
-
-          const file =
-            files[i];
-
-
-          if (
-            !file.type.startsWith(
-              "image/"
-            )
-          ) {
-
-            showMessage(
-              `${file.name} is not a valid image.`,
-              "error"
-            );
-
-            continue;
-          }
-
-
-          if (
-            file.size > maxSize
-          ) {
-
-            showMessage(
-              `${file.name} is larger than 5 MB.`,
-              "error"
-            );
-
-            continue;
-          }
-
-
-          showMessage(
-            `Uploading image ${i + 1} of ${files.length}...`
-          );
-
-
-          const result =
-            await window.api.uploadImage(
-              file
-            );
-
-
-          /*
-           * Support both:
-           *
-           * "https://..."
-           *
-           * and:
-           *
-           * { image_url: "https://..." }
-           */
-
-          const url =
-            typeof result === "string"
-              ? result
-              : result?.image_url;
-
-
-          if (!url) {
-
-            throw new Error(
-              "Image upload succeeded but no image URL was returned."
-            );
-          }
-
-
-          selectedImages.push({
-            url,
-            name: file.name,
-            existing: false,
-          });
-
-
-          renderImagePreviews();
+          continue;
         }
 
+        if (file.size > maxSize) {
+          showMessage(`${file.name} is larger than 5 GB.`, "error");
 
-        showMessage(
-          `${selectedImages.length} image${
-            selectedImages.length === 1
-              ? ""
-              : "s"
-          } ready.`
-        );
+          continue;
+        }
 
-      } catch (error) {
+        showMessage(`Uploading image ${i + 1} of ${files.length}...`);
 
-        console.error(
-          "Image upload failed:",
-          error
-        );
+        const result = await window.api.uploadImage(file);
 
-        showMessage(
-          error.message,
-          "error"
-        );
+        /*
+         * Support both:
+         *
+         * "https://..."
+         *
+         * and:
+         *
+         * { image_url: "https://..." }
+         */
+
+        const url = typeof result === "string" ? result : result?.image_url;
+
+        if (!url) {
+          throw new Error(
+            "Image upload succeeded but no image URL was returned.",
+          );
+        }
+
+        selectedImages.push({
+          url,
+          name: file.name,
+          existing: false,
+        });
+
+        renderImagePreviews();
       }
-    }
-  );
-}
 
+      showMessage(
+        `${selectedImages.length} image${
+          selectedImages.length === 1 ? "" : "s"
+        } ready.`,
+      );
+    } catch (error) {
+      console.error("Image upload failed:", error);
+
+      showMessage(error.message, "error");
+    }
+  });
+}
 
 /* =========================================
    VIDEO UPLOAD HANDLER
 ========================================= */
 
 if (videoInput) {
+  videoInput.addEventListener("change", async () => {
+    const files = Array.from(videoInput.files || []);
 
-  videoInput.addEventListener(
-    "change",
-    async () => {
+    if (!files.length) {
+      return;
+    }
 
-      const files =
-        Array.from(
-          videoInput.files || []
-        );
+    const allowedTypes = ["video/mp4", "video/webm","video/mov", "video/quicktime"];
 
+    const maxSize =
+  5 * 1024 * 1024 * 1024; // 5 GB
 
-      if (!files.length) {
-        return;
-      }
+    videoInput.value = "";
 
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
 
-      const allowedTypes = [
-        "video/mp4",
-        "video/webm",
-        "video/quicktime",
-      ];
+        if (!allowedTypes.includes(file.type)) {
+          showMessage(`${file.name} is not a supported video.`, "error");
 
-
-      const maxSize =
-        50 * 1024 * 1024;
-
-
-      videoInput.value = "";
-
-
-      try {
-
-        for (
-          let i = 0;
-          i < files.length;
-          i++
-        ) {
-
-          const file =
-            files[i];
-
-
-          if (
-            !allowedTypes.includes(
-              file.type
-            )
-          ) {
-
-            showMessage(
-              `${file.name} is not a supported video.`,
-              "error"
-            );
-
-            continue;
-          }
-
-
-          if (
-            file.size > maxSize
-          ) {
-
-            showMessage(
-              `${file.name} is larger than 50 MB.`,
-              "error"
-            );
-
-            continue;
-          }
-
-
-          showMessage(
-            `Uploading video ${i + 1} of ${files.length}...`
-          );
-
-
-          const result =
-            await window.api.uploadVideo(
-              file
-            );
-
-
-          /*
-           * Support both:
-           *
-           * "https://..."
-           *
-           * and:
-           *
-           * { video_url: "https://..." }
-           */
-
-          const url =
-            typeof result === "string"
-              ? result
-              : result?.video_url;
-
-
-          if (!url) {
-
-            throw new Error(
-              "Video upload succeeded but no video URL was returned."
-            );
-          }
-
-
-          selectedVideos.push({
-            url,
-            name: file.name,
-            existing: false,
-          });
-
-
-          renderVideoPreviews();
+          continue;
         }
 
+        if (file.size > maxSize) {
+          showMessage(`${file.name} is larger than 5 GB.`, "error");
 
-        showMessage(
-          `${selectedVideos.length} video${
-            selectedVideos.length === 1
-              ? ""
-              : "s"
-          } ready.`
-        );
+          continue;
+        }
 
-      } catch (error) {
+        showMessage(`Uploading video ${i + 1} of ${files.length}...`);
 
-        console.error(
-          "Video upload failed:",
-          error
-        );
+        const result = await window.api.uploadVideo(file);
 
-        showMessage(
-          error.message,
-          "error"
-        );
+        /*
+         * Support both:
+         *
+         * "https://..."
+         *
+         * and:
+         *
+         * { video_url: "https://..." }
+         */
+
+        const url = typeof result === "string" ? result : result?.video_url;
+
+        if (!url) {
+          throw new Error(
+            "Video upload succeeded but no video URL was returned.",
+          );
+        }
+
+        selectedVideos.push({
+          url,
+          name: file.name,
+          existing: false,
+        });
+
+        renderVideoPreviews();
       }
-    }
-  );
-}
 
+      showMessage(
+        `${selectedVideos.length} video${
+          selectedVideos.length === 1 ? "" : "s"
+        } ready.`,
+      );
+    } catch (error) {
+      console.error("Video upload failed:", error);
+
+      showMessage(error.message, "error");
+    }
+  });
+}
 
 /* =========================================
    EDIT EVENT
 ========================================= */
 
 const startEdit = async (id) => {
-
   try {
+    showMessage("Loading event...");
 
-    showMessage(
-      "Loading event..."
-    );
-
-
-    const event =
-      await window.api.getEvent(id);
-
+    const event = await window.api.getEvent(id);
 
     if (!event) {
-
-      throw new Error(
-        "Event not found."
-      );
+      throw new Error("Event not found.");
     }
 
-
-    editingEventId =
-      event.id;
-
+    editingEventId = event.id;
 
     /* =====================================
        BASIC EVENT FIELDS
     ===================================== */
 
-    const titleField =
-      document.getElementById("title");
+    const titleField = document.getElementById("title");
 
-    const slugField =
-      document.getElementById("slug");
+    const slugField = document.getElementById("slug");
 
-    const descriptionField =
-      document.getElementById("description");
+    const descriptionField = document.getElementById("description");
 
-    const locationField =
-      document.getElementById("location");
+    const locationField = document.getElementById("location");
 
-    const statusField =
-      document.getElementById("status");
-
+    const statusField = document.getElementById("status");
 
     if (titleField) {
-      titleField.value =
-        event.title || "";
+      titleField.value = event.title || "";
     }
-
 
     if (slugField) {
-      slugField.value =
-        event.slug || "";
+      slugField.value = event.slug || "";
     }
-
 
     if (descriptionField) {
-      descriptionField.value =
-        event.description || "";
+      descriptionField.value = event.description || "";
     }
-
 
     if (locationField) {
-      locationField.value =
-        event.location || "";
+      locationField.value = event.location || "";
     }
-
 
     if (statusField) {
-      statusField.value =
-        event.status ||
-        "draft";
+      statusField.value = event.status || "draft";
     }
-
 
     /* =====================================
        MEDIA
@@ -1267,7 +849,6 @@ const startEdit = async (id) => {
 
     selectedImages = [];
     selectedVideos = [];
-
 
     /*
      * New architecture:
@@ -1277,59 +858,33 @@ const startEdit = async (id) => {
      * comes from event_media table.
      */
 
-    if (
-      Array.isArray(event.media)
-    ) {
+    if (Array.isArray(event.media)) {
+      event.media.forEach((item) => {
+        if (item.media_type === "image" && item.media_url) {
+          selectedImages.push({
+            url: item.media_url,
 
-      event.media.forEach(
-        (item) => {
+            name: "Existing image",
 
-          if (
-            item.media_type ===
-              "image" &&
-            item.media_url
-          ) {
+            existing: true,
 
-            selectedImages.push({
-              url:
-                item.media_url,
-
-              name:
-                "Existing image",
-
-              existing:
-                true,
-
-              id:
-                item.id,
-            });
-          }
-
-
-          if (
-            item.media_type ===
-              "video" &&
-            item.media_url
-          ) {
-
-            selectedVideos.push({
-              url:
-                item.media_url,
-
-              name:
-                "Existing video",
-
-              existing:
-                true,
-
-              id:
-                item.id,
-            });
-          }
+            id: item.id,
+          });
         }
-      );
-    }
 
+        if (item.media_type === "video" && item.media_url) {
+          selectedVideos.push({
+            url: item.media_url,
+
+            name: "Existing video",
+
+            existing: true,
+
+            id: item.id,
+          });
+        }
+      });
+    }
 
     /*
      * Legacy fallback.
@@ -1339,499 +894,282 @@ const startEdit = async (id) => {
      * to continue working.
      */
 
-    if (
-      !selectedImages.length &&
-      event.image_url
-    ) {
-
+    if (!selectedImages.length && event.image_url) {
       selectedImages.push({
-        url:
-          event.image_url,
+        url: event.image_url,
 
-        name:
-          "Existing image",
+        name: "Existing image",
 
-        existing:
-          true,
+        existing: true,
 
-        legacy:
-          true,
+        legacy: true,
       });
     }
 
-
-    if (
-      !selectedVideos.length &&
-      event.video_url
-    ) {
-
+    if (!selectedVideos.length && event.video_url) {
       selectedVideos.push({
-        url:
-          event.video_url,
+        url: event.video_url,
 
-        name:
-          "Existing video",
+        name: "Existing video",
 
-        existing:
-          true,
+        existing: true,
 
-        legacy:
-          true,
+        legacy: true,
       });
     }
-
 
     renderImagePreviews();
     renderVideoPreviews();
-
 
     /* =====================================
        DATE
     ===================================== */
 
-    const dateInput =
-      document.getElementById(
-        "event_date"
-      );
+    const dateInput = document.getElementById("event_date");
 
+    if (dateInput && event.event_date) {
+      const date = new Date(event.event_date);
 
-    if (
-      dateInput &&
-      event.event_date
-    ) {
-
-      const date =
-        new Date(
-          event.event_date
-        );
-
-
-      if (
-        !Number.isNaN(
-          date.getTime()
+      if (!Number.isNaN(date.getTime())) {
+        const localDate = new Date(
+          date.getTime() - date.getTimezoneOffset() * 60000,
         )
-      ) {
+          .toISOString()
+          .slice(0, 16);
 
-        const localDate =
-          new Date(
-            date.getTime() -
-            date.getTimezoneOffset() *
-              60000
-          )
-            .toISOString()
-            .slice(0, 16);
-
-
-        dateInput.value =
-          localDate;
+        dateInput.value = localDate;
       }
     }
-
 
     /* =====================================
        EDIT MODE
     ===================================== */
 
     if (formTitle) {
-
-      formTitle.textContent =
-        "Edit Event";
+      formTitle.textContent = "Edit Event";
     }
-
 
     if (saveButton) {
-
-      saveButton.textContent =
-        "Update Event";
+      saveButton.textContent = "Update Event";
     }
-
 
     if (cancelButton) {
-
-      cancelButton.style.display =
-        "inline-block";
+      cancelButton.style.display = "inline-block";
     }
 
-
-    showMessage(
-      `Editing "${event.title}"`
-    );
-
+    showMessage(`Editing "${event.title}"`);
 
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-
   } catch (error) {
+    console.error("Failed to load event:", error);
 
-    console.error(
-      "Failed to load event:",
-      error
-    );
-
-    showMessage(
-      error.message,
-      "error"
-    );
+    showMessage(error.message, "error");
   }
 };
-
 
 /* =========================================
    DELETE EVENT
 ========================================= */
 
 const removeEvent = async (id) => {
-
-  const confirmed =
-    confirm(
-      "Are you sure you want to delete this event?"
-    );
-
+  const confirmed = confirm("Are you sure you want to delete this event?");
 
   if (!confirmed) {
     return;
   }
 
-
   try {
+    await window.api.deleteEvent(id);
 
-    await window.api.deleteEvent(
-      id
-    );
-
-
-    showMessage(
-      "Event deleted successfully."
-    );
-
+    showMessage("Event deleted successfully.");
 
     await loadEvents();
-
   } catch (error) {
+    console.error("Failed to delete event:", error);
 
-    console.error(
-      "Failed to delete event:",
-      error
-    );
-
-    showMessage(
-      error.message,
-      "error"
-    );
+    showMessage(error.message, "error");
   }
 };
-
 
 /* =========================================
    SUBMIT EVENT
 ========================================= */
 
 if (eventForm) {
+  eventForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  eventForm.addEventListener(
-    "submit",
-    async (event) => {
+    const titleField = document.getElementById("title");
 
-      event.preventDefault();
+    const descriptionField = document.getElementById("description");
 
+    const dateField = document.getElementById("event_date");
 
-      const titleField =
-        document.getElementById(
-          "title"
-        );
+    const locationField = document.getElementById("location");
 
-      const descriptionField =
-        document.getElementById(
-          "description"
-        );
+    const statusField = document.getElementById("status");
 
-      const dateField =
-        document.getElementById(
-          "event_date"
-        );
+    const title = titleField ? titleField.value.trim() : "";
 
-      const locationField =
-        document.getElementById(
-          "location"
-        );
+    if (!title) {
+      showMessage("Event title is required.", "error");
 
-      const statusField =
-        document.getElementById(
-          "status"
-        );
+      return;
+    }
 
-
-      const title =
-        titleField
-          ? titleField.value.trim()
-          : "";
-
-
-      if (!title) {
-
-        showMessage(
-          "Event title is required.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      /* ===================================
+    /* ===================================
          MEDIA URL ARRAYS
       =================================== */
 
-      const imageUrls =
-        selectedImages
-          .map(
-            item => item.url
-          )
-          .filter(Boolean);
+    const imageUrls = selectedImages.map((item) => item.url).filter(Boolean);
 
+    const videoUrls = selectedVideos.map((item) => item.url).filter(Boolean);
 
-      const videoUrls =
-        selectedVideos
-          .map(
-            item => item.url
-          )
-          .filter(Boolean);
-
-
-      /* ===================================
+    /* ===================================
          EVENT DATA
       =================================== */
 
-      const eventData = {
+    const eventData = {
+      title,
 
-        title,
+      slug: generateSlug(title),
 
-        slug:
-          generateSlug(title),
+      description: descriptionField ? descriptionField.value.trim() : "",
 
-        description:
-          descriptionField
-            ? descriptionField.value.trim()
-            : "",
+      event_date: dateField ? dateField.value : "",
 
-        event_date:
-          dateField
-            ? dateField.value
-            : "",
+      location: locationField ? locationField.value.trim() : "",
 
-        location:
-          locationField
-            ? locationField.value.trim()
-            : "",
+      /*
+       * PRIMARY MEDIA DATA
+       *
+       * These arrays are what the backend
+       * should use to synchronize the
+       * event_media table.
+       */
 
-        /*
-         * PRIMARY MEDIA DATA
-         *
-         * These arrays are what the backend
-         * should use to synchronize the
-         * event_media table.
-         */
+      image_urls: imageUrls,
 
-        image_urls:
-          imageUrls,
+      video_urls: videoUrls,
 
-        video_urls:
-          videoUrls,
+      /*
+       * LEGACY COMPATIBILITY
+       *
+       * Keep these temporarily because
+       * your events table still contains
+       * image_url and video_url.
+       */
 
-        /*
-         * LEGACY COMPATIBILITY
-         *
-         * Keep these temporarily because
-         * your events table still contains
-         * image_url and video_url.
-         */
+      image_url: imageUrls[0] || "",
 
-        image_url:
-          imageUrls[0] || "",
+      video_url: videoUrls[0] || "",
 
-        video_url:
-          videoUrls[0] || "",
+      status: statusField ? statusField.value : "draft",
+    };
 
-        status:
-          statusField
-            ? statusField.value
-            : "draft",
-      };
-
-
-      /* ===================================
+    /* ===================================
          DISABLE BUTTON
       =================================== */
 
-      if (saveButton) {
-        saveButton.disabled =
-          true;
-      }
+    if (saveButton) {
+      saveButton.disabled = true;
+    }
 
-
-      try {
-
-        /* =================================
+    try {
+      /* =================================
            UPDATE
         ================================= */
 
-        if (
-          editingEventId !== null
-        ) {
-
-          if (saveButton) {
-            saveButton.textContent =
-              "Updating...";
-          }
-
-
-          await window.api.updateEvent(
-            editingEventId,
-            eventData
-          );
-
-
-          showMessage(
-            "Event updated successfully."
-          );
+      if (editingEventId !== null) {
+        if (saveButton) {
+          saveButton.textContent = "Updating...";
         }
 
+        await window.api.updateEvent(editingEventId, eventData);
 
-        /* =================================
+        showMessage("Event updated successfully.");
+      } else {
+
+      /* =================================
            CREATE
         ================================= */
-
-        else {
-
-          if (saveButton) {
-            saveButton.textContent =
-              "Creating...";
-          }
-
-
-          await window.api.createEvent(
-            eventData
-          );
-
-
-          showMessage(
-            "Event created successfully."
-          );
+        if (saveButton) {
+          saveButton.textContent = "Creating...";
         }
 
+        await window.api.createEvent(eventData);
 
-        /* =================================
+        showMessage("Event created successfully.");
+      }
+
+      /* =================================
            RESET + RELOAD
         ================================= */
 
-        resetForm();
+      resetForm();
 
-        await loadEvents();
+      await loadEvents();
+    } catch (error) {
+      console.error("Failed to save event:", error);
 
-      } catch (error) {
+      showMessage(error.message, "error");
+    } finally {
+      if (saveButton) {
+        saveButton.disabled = false;
 
-        console.error(
-          "Failed to save event:",
-          error
-        );
+        /*
+         * resetForm() already sets this
+         * when successful. If there was
+         * an error, restore the appropriate
+         * button text.
+         */
 
-        showMessage(
-          error.message,
-          "error"
-        );
-
-      } finally {
-
-        if (saveButton) {
-
-          saveButton.disabled =
-            false;
-
-          /*
-           * resetForm() already sets this
-           * when successful. If there was
-           * an error, restore the appropriate
-           * button text.
-           */
-
-          if (
-            editingEventId !== null
-          ) {
-
-            saveButton.textContent =
-              "Update Event";
-
-          } else {
-
-            saveButton.textContent =
-              "Create Event";
-          }
+        if (editingEventId !== null) {
+          saveButton.textContent = "Update Event";
+        } else {
+          saveButton.textContent = "Create Event";
         }
       }
-
     }
-  );
+  });
 }
-
 
 /* =========================================
    CANCEL EDIT
 ========================================= */
 
 if (cancelButton) {
+  cancelButton.addEventListener("click", () => {
+    resetForm();
 
-  cancelButton.addEventListener(
-    "click",
-    () => {
-
-      resetForm();
-
-      showMessage(
-        "Edit cancelled."
-      );
-    }
-  );
+    showMessage("Edit cancelled.");
+  });
 }
-
 
 /* =========================================
    LOGOUT
 ========================================= */
 
 if (logoutButton) {
+  logoutButton.addEventListener("click", () => {
+    localStorage.removeItem("soundEventsToken");
 
-  logoutButton.addEventListener(
-    "click",
-    () => {
+    localStorage.removeItem("soundEventsAdmin");
 
-      localStorage.removeItem(
-        "soundEventsToken"
-      );
-
-      localStorage.removeItem(
-        "soundEventsAdmin"
-      );
-
-
-      window.location.href =
-        "login.html";
-    }
-  );
+    window.location.href = "login.html";
+  });
 }
-
 
 /* =========================================
    EXPOSE FUNCTIONS FOR HTML BUTTONS
 ========================================= */
 
-window.startEdit =
-  startEdit;
+window.startEdit = startEdit;
 
-window.removeEvent =
-  removeEvent;
-
+window.removeEvent = removeEvent;
 
 /* =========================================
    INITIAL LOAD

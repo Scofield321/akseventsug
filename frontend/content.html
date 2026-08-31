@@ -649,37 +649,23 @@
 
       .moments-lightbox-counter {
         position: fixed;
-
         bottom: 25px;
-
         left: 50%;
-
         z-index: 10001;
-
         transform: translateX(-50%);
-
         padding: 8px 14px;
-
         border-radius: 100px;
-
         background: rgba(0, 0, 0, 0.65);
-
         color: white;
-
         font-size: 11px;
       }
 
       .moments-lightbox-event {
         position: fixed;
-
         bottom: 25px;
-
         left: 25px;
-
         z-index: 10001;
-
         color: rgba(255, 255, 255, 0.7);
-
         font-size: 12px;
       }
 
@@ -690,19 +676,15 @@
       @media (max-width: 900px) {
         .moments-gallery {
           grid-template-columns: repeat(2, minmax(0, 1fr));
-
           grid-auto-rows: 230px;
         }
-
         .moment-card-large {
           grid-column: span 2;
-
           grid-row: span 2;
         }
 
         .moments-heading {
           align-items: flex-start;
-
           flex-direction: column;
         }
       }
@@ -710,7 +692,6 @@
       @media (max-width: 600px) {
         .moments-hero {
           min-height: 72vh;
-
           padding: 130px 0 65px;
         }
 
@@ -724,41 +705,32 @@
 
         .moments-gallery {
           grid-template-columns: 1fr;
-
           grid-auto-rows: 280px;
-
           gap: 10px;
         }
 
         .moment-card-large {
           grid-column: span 1;
-
           grid-row: span 1;
         }
 
         .moments-lightbox {
           padding: 15px;
         }
-
         .moments-lightbox-arrow {
           width: 42px;
-
           height: 42px;
         }
-
         .moments-lightbox-prev {
           left: 10px;
         }
-
         .moments-lightbox-next {
           right: 10px;
         }
-
         .moments-lightbox-event {
           display: none;
         }
       }
-
       @media (max-width: 600px) {
         .moments-hero-stats {
           gap: 25px;
@@ -783,14 +755,11 @@
 
           <span class="brand-sub"> EVENTS </span>
         </a>
-
+<!-- all web links -->
         <div class="nav-links">
           <a href="index.html"> Home </a>
-
           <a href="events.html"> Events </a>
-
           <a href="about.html"> About </a>
-
           <a href="content.html" class="active"> Moments </a>
         </div>
 
@@ -804,29 +773,22 @@
           ☰
         </button>
       </nav>
-
+<!-- mobile version links -->
       <div class="mobile-nav" id="mobileNav">
         <a href="index.html"> Home </a>
-
         <a href="events.html"> Events </a>
-
         <a href="about.html"> About </a>
-
         <a href="content.html"> Moments </a>
-
         <a href="events.html"> Explore Events </a>
       </div>
     </header>
-
     <!-- =====================================================
        MAIN
   ===================================================== -->
-
     <main>
       <!-- ===================================================
-         HERO
+         HERO SECTION
     ==================================================== -->
-
       <section class="moments-hero">
         <div class="container moments-hero-content">
           <div class="moments-hero-label">AKS EVENTS</div>
@@ -840,23 +802,18 @@
             A collection of experiences, people, energy and memories captured
             through AKS Events.
           </p>
-
           <div class="moments-hero-stats">
             <div class="moments-stat">
               <strong id="momentsEventCount"> 0 </strong>
-
               <span> EVENTS </span>
             </div>
-
             <div class="moments-stat">
               <strong id="momentsMediaCount"> 0 </strong>
 
               <span> MOMENTS </span>
             </div>
-
             <div class="moments-stat">
               <strong> AKS </strong>
-
               <span> EXPERIENCES </span>
             </div>
           </div>
@@ -864,7 +821,7 @@
       </section>
 
       <!-- ===================================================
-         GALLERY
+         GALLERY (Where all the moments lives)
     ==================================================== -->
 
       <section class="moments-section">
@@ -878,17 +835,13 @@
 
             <p>Explore moments captured across our events and experiences.</p>
           </div>
-
           <!-- FILTERS -->
-
           <div class="moments-filters" id="momentsFilters">
             <button class="moments-filter active" data-filter="all">
               All Moments
             </button>
           </div>
-
           <!-- GALLERY -->
-
           <div class="moments-gallery" id="momentsGallery">
             <div class="moments-loading">
               <div class="loading-spinner"></div>
@@ -902,7 +855,6 @@
       <!-- ===================================================
          CTA
     ==================================================== -->
-
       <section class="cta-section">
         <div class="cta-glow"></div>
 
@@ -913,18 +865,14 @@
             More experiences.
             <span>More memories.</span>
           </h2>
-
           <p>There is always another moment waiting to be experienced.</p>
-
           <a href="events.html" class="button button-light">
             Explore Events
-
             <span> → </span>
           </a>
         </div>
       </section>
     </main>
-
     <!-- =====================================================
        LIGHTBOX
   ===================================================== -->
@@ -947,7 +895,6 @@
       </button>
 
       <div class="moments-lightbox-content" id="momentsLightboxContent"></div>
-
       <button
         class="moments-lightbox-arrow moments-lightbox-next"
         id="momentsLightboxNext"
@@ -959,7 +906,6 @@
       <div class="moments-lightbox-counter" id="momentsLightboxCounter">
         1 / 1
       </div>
-
       <div class="moments-lightbox-event" id="momentsLightboxEvent"></div>
     </div>
 
@@ -973,28 +919,22 @@
           <div class="footer-brand">
             <a href="index.html" class="brand">
               <span class="brand-main"> AKS </span>
-
               <span class="brand-sub"> EVENTS </span>
             </a>
-
             <p>Experiences worth remembering.</p>
           </div>
-
           <div class="footer-links">
             <div>
               <h4>Explore</h4>
               <a href="events.html"> Events </a>
-
               <a href="content.html"> Moments </a>
               <a href="about.html"> About </a>
             </div>
+            <!-- Social media links -->
             <div>
               <h4>Connect</h4>
-
               <a href="#"> Instagram </a>
-
               <a href="#"> Facebook </a>
-
               <a href="#"> TikTok </a>
             </div>
           </div>
@@ -1003,7 +943,6 @@
           <span>
             ©
             <span id="currentYear"></span>
-
             AKS Events. All rights reserved.
           </span>
           <span> Made for unforgettable moments. </span>
@@ -1014,9 +953,8 @@
     <!-- =====================================================
        SCRIPTS
   ===================================================== -->
-
+<!-- JS CONNECTIONS -->
     <script src="api.js"></script>
-
     <script src="content.js"></script>
   </body>
 </html>

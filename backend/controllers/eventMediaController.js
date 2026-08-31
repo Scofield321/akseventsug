@@ -118,7 +118,6 @@ const uploadMedia = async (req, res) => {
       }
     );
 
-
     // --------------------------------------------------------
     // DETERMINE FILE TYPE
     // --------------------------------------------------------
@@ -127,8 +126,6 @@ const uploadMedia = async (req, res) => {
       path.extname(
         req.file.originalname
       ).toLowerCase();
-
-
     const imageExtensions = [
       ".jpg",
       ".jpeg",
@@ -137,13 +134,11 @@ const uploadMedia = async (req, res) => {
       ".gif",
     ];
 
-
     const videoExtensions = [
       ".mp4",
       ".webm",
       ".mov",
     ];
-
 
     const isImage =
       req.file.mimetype.startsWith(
@@ -152,7 +147,6 @@ const uploadMedia = async (req, res) => {
       imageExtensions.includes(
         fileExt
       );
-
 
     const isVideo =
       req.file.mimetype.startsWith(
@@ -170,7 +164,6 @@ const uploadMedia = async (req, res) => {
           "Only JPG, PNG, WEBP, GIF, MP4, WebM or MOV files are allowed",
       });
     }
-
 
     // --------------------------------------------------------
     // VALIDATE VIDEO
@@ -191,7 +184,6 @@ const uploadMedia = async (req, res) => {
       }
     }
 
-
     // --------------------------------------------------------
     // DETERMINE MEDIA TYPE
     // --------------------------------------------------------
@@ -200,7 +192,6 @@ const uploadMedia = async (req, res) => {
       isImage
         ? "image"
         : "video";
-
 
     // --------------------------------------------------------
     // CREATE UNIQUE FILE NAME
@@ -250,7 +241,6 @@ const uploadMedia = async (req, res) => {
       }
     }
 
-
     // --------------------------------------------------------
     // UPLOAD TO SUPABASE STORAGE
     // --------------------------------------------------------
@@ -269,7 +259,6 @@ const uploadMedia = async (req, res) => {
           }
         );
 
-
     if (uploadError) {
 
       console.error(
@@ -282,7 +271,6 @@ const uploadMedia = async (req, res) => {
           "Failed to upload media",
       });
     }
-
 
     // --------------------------------------------------------
     // GET PUBLIC URL
@@ -314,7 +302,6 @@ const uploadMedia = async (req, res) => {
       });
     }
 
-
     // --------------------------------------------------------
     // GET CURRENT SORT ORDER
     // --------------------------------------------------------
@@ -324,10 +311,8 @@ const uploadMedia = async (req, res) => {
         eventId
       );
 
-
     const sortOrder =
       existingMedia.length;
-
 
     // --------------------------------------------------------
     // SAVE MEDIA URL IN POSTGRESQL
