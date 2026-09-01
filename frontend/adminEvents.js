@@ -726,7 +726,7 @@ if (videoInput) {
       return;
     }
 
-    const allowedTypes = ["video/mp4", "video/webm","video/mov", "video/quicktime"];
+    const allowedTypes = ["video/mp4", "video/webm", "video/quicktime"];
 
     const maxSize =
   5 * 1024 * 1024 * 1024; // 5 GB

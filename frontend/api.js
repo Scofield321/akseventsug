@@ -243,7 +243,7 @@ const uploadImage = async (file) => {
 };
 
 // ============================================================
-// MEDIA — UPLOAD VIDEO
+// MEDIA — DIRECT VIDEO UPLOAD TO SUPABASE
 // ============================================================
 
 const uploadVideo = async (file) => {
@@ -252,36 +252,129 @@ const uploadVideo = async (file) => {
   }
 
   try {
-    const formData = new FormData();
 
-    formData.append("video", file);
+    // --------------------------------------------------------
+    // STEP 1 — ASK BACKEND FOR SIGNED UPLOAD URL
+    // --------------------------------------------------------
 
-    const response = await fetch(`${API_URL}/events/upload-video`, {
-      method: "POST",
+    console.log(
+      "🎥 Preparing direct video upload:",
+      file.name,
+      file.size
+    );
 
-      headers: getUploadHeaders(),
+    const prepareResponse = await fetch(
+      `${API_URL}/events/prepare-video-upload`,
+      {
+        method: "POST",
 
-      body: formData,
-    });
+        headers: {
+          "Content-Type": "application/json",
 
-    const data = await handleResponse(response);
+          Authorization:
+            `Bearer ${getToken()}`,
+        },
 
-    /*
-     * Backend returns:
-     *
-     * {
-     *   message: "...",
-     *   video_url: "..."
-     * }
-     */
+        body: JSON.stringify({
+          fileName: file.name,
 
-    if (!data?.video_url) {
-      throw new Error("Video upload succeeded but no video URL was returned.");
+          contentType: file.type,
+        }),
+      }
+    );
+
+    const uploadData =
+      await handleResponse(
+        prepareResponse
+      );
+
+    if (!uploadData?.signedUrl) {
+      throw new Error(
+        "Server did not return a Supabase upload URL."
+      );
     }
 
-    return data.video_url;
+    console.log(
+      "🟢 Signed upload URL received."
+    );
+
+    // --------------------------------------------------------
+    // STEP 2 — UPLOAD FILE DIRECTLY TO SUPABASE
+    // --------------------------------------------------------
+
+    const uploadResponse =
+      await fetch(
+        uploadData.signedUrl,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              file.type ||
+              "application/octet-stream",
+          },
+
+          body: file,
+        }
+      );
+
+    if (!uploadResponse.ok) {
+
+      let errorText = "";
+
+      try {
+        errorText =
+          await uploadResponse.text();
+      } catch {
+        errorText = "";
+      }
+
+      console.error(
+        "🔴 Direct Supabase video upload failed:",
+        {
+          status:
+            uploadResponse.status,
+
+          statusText:
+            uploadResponse.statusText,
+
+          error:
+            errorText,
+        }
+      );
+
+      throw new Error(
+        `Video upload failed (${uploadResponse.status}).`
+      );
+    }
+
+    console.log(
+      "🟢 Video uploaded directly to Supabase."
+    );
+
+    // --------------------------------------------------------
+    // STEP 3 — RETURN PUBLIC VIDEO URL
+    // --------------------------------------------------------
+
+    if (!uploadData.video_url) {
+      throw new Error(
+        "Video uploaded but no public URL was returned."
+      );
+    }
+
+    console.log(
+      "🟢 Video URL:",
+      uploadData.video_url
+    );
+
+    return uploadData.video_url;
+
   } catch (error) {
-    console.error("Video upload failed:", error);
+
+    console.error(
+      "Video upload failed:",
+      error
+    );
 
     throw error;
   }

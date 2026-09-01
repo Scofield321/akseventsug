@@ -8,7 +8,7 @@ const {
   updateExistingEvent,
   deleteExistingEvent,
   uploadEventImage,
-  uploadEventVideo,
+  prepareVideoUpload,
 } = require("../controllers/eventController");
 
 const protect = require("../middleware/authMiddleware");
@@ -88,10 +88,17 @@ router.post(
 );
 
 // Upload video
+// router.post(
+//   "/upload-video",
+//   protect,
+//   upload.single("video"),
+//   uploadEventVideo
+// );
+
+// we need this for larger files
 router.post(
-  "/upload-video",
+  "/prepare-video-upload",
   protect,
-  upload.single("video"),
-  uploadEventVideo
+  prepareVideoUpload
 );
 module.exports = router;

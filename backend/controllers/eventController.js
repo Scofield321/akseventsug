@@ -975,25 +975,162 @@ const uploadEventVideo = async (
   }
 };
 
+// ============================================================
+// PREPARE DIRECT SUPABASE VIDEO UPLOAD
+// ============================================================
+
+const prepareVideoUpload = async (req, res) => {
+  try {
+    const {
+      fileName,
+      contentType,
+    } = req.body;
+
+    if (!fileName) {
+      return res.status(400).json({
+        message: "File name is required.",
+      });
+    }
+
+    if (!contentType || !contentType.startsWith("video/")) {
+      return res.status(400).json({
+        message: "A valid video content type is required.",
+      });
+    }
+
+    const fileExt =
+      path
+        .extname(fileName)
+        .toLowerCase();
+
+    const allowedExtensions = [
+      ".mp4",
+      ".webm",
+      ".mov",
+    ];
+
+    if (!allowedExtensions.includes(fileExt)) {
+      return res.status(400).json({
+        message:
+          "Invalid video format. Please upload MP4, WebM or MOV.",
+      });
+    }
+
+    // --------------------------------------------------------
+    // UNIQUE FILE NAME
+    // --------------------------------------------------------
+
+    const uniqueFileName =
+      `${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 10)}${fileExt}`;
+
+    const filePath =
+      `events/videos/${uniqueFileName}`;
+
+    // --------------------------------------------------------
+    // CREATE SIGNED UPLOAD URL
+    // --------------------------------------------------------
+
+    const {
+      data,
+      error,
+    } =
+      await supabase.storage
+        .from("akseventsug")
+        .createSignedUploadUrl(
+          filePath
+        );
+
+    if (error) {
+      console.error(
+        "🔴 Failed to create signed video upload URL:",
+        error
+      );
+
+      return res.status(500).json({
+        message:
+          "Failed to prepare video upload.",
+      });
+    }
+
+    if (!data?.signedUrl) {
+      return res.status(500).json({
+        message:
+          "Supabase did not return a signed upload URL.",
+      });
+    }
+
+    // --------------------------------------------------------
+    // PUBLIC URL
+    // --------------------------------------------------------
+
+    const {
+      data: publicUrlData,
+    } =
+      supabase.storage
+        .from("akseventsug")
+        .getPublicUrl(
+          filePath
+        );
+
+    const publicUrl =
+      publicUrlData?.publicUrl;
+
+    if (!publicUrl) {
+      return res.status(500).json({
+        message:
+          "Video upload URL was created but public URL could not be generated.",
+      });
+    }
+
+    console.log(
+      "🟢 Prepared direct video upload:",
+      filePath
+    );
+
+    res.json({
+      message:
+        "Video upload prepared successfully",
+
+      signedUrl:
+        data.signedUrl,
+
+      token:
+        data.token,
+
+      path:
+        filePath,
+
+      video_url:
+        publicUrl,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "🔴 Prepare video upload error:",
+      error
+    );
+
+    res.status(500).json({
+      message:
+        "Server error while preparing video upload.",
+    });
+  }
+};
+
 
 // ============================================================
 // EXPORTS
 // ============================================================
 
 module.exports = {
-
   getEvents,
-
   getSingleEvent,
-
   createNewEvent,
-
   updateExistingEvent,
-
   deleteExistingEvent,
-
   uploadEventImage,
-
-  uploadEventVideo,
-
+  prepareVideoUpload,
 };
